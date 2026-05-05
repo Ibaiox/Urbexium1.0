@@ -4,14 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Reporte extends Model
+class Pedido extends Model
 {
     protected $fillable = [
         'user_id',
-        'localizacion_id',
-        'motivo',
-        'descripcion',
+        'total',
         'estado',
+        'direccion_envio',
+        'metodo_pago',
+    ];
+
+    protected $casts = [
+        'total' => 'decimal:2',
     ];
 
     public function user()
@@ -19,8 +23,8 @@ class Reporte extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function localizacion()
+    public function items()
     {
-        return $this->belongsTo(Localizacion::class);
+        return $this->hasMany(PedidoItem::class);
     }
 }

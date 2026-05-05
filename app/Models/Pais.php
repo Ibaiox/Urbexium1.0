@@ -3,16 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pais extends Model
 {
-    protected $table = 'paises';
-
+     protected $table = 'paises';
     protected $fillable = ['nombre'];
 
-    public function ciudades(): HasMany
+    public function ciudades()
     {
-        return $this->hasMany(Ciudad::class, 'pais_id');
+        return $this->hasMany(Ciudad::class);
     }
 }

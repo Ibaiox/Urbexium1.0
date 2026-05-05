@@ -4,14 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Reporte extends Model
+class Notificacion extends Model
 {
+    protected $table = 'notificaciones';
     protected $fillable = [
         'user_id',
         'localizacion_id',
-        'motivo',
-        'descripcion',
-        'estado',
+        'tipo',
+        'titulo',
+        'mensaje',
+        'leida',
+    ];
+
+    protected $casts = [
+        'leida' => 'boolean',
     ];
 
     public function user()

@@ -24,24 +24,6 @@
         </div>
     </div>
 
-    {{-- Stats Grid (1 stat card) --}}
-    <div style="display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));">
-        <div class="card stat-card" style="color:var(--primary)">
-            <div class="card-header" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between;">
-                <p class="card-title" style="font-size:0.8125rem; font-weight:500; color:var(--muted-foreground);">
-                    Spots Añadidos
-                </p>
-                <i data-lucide="map-pin" style="width:1.125rem;height:1.125rem; color:var(--primary);"></i>
-            </div>
-            <div class="card-content">
-                <p style="font-size:1.875rem; font-weight:700; color:var(--card-foreground); margin:0 0 0.25rem;">
-                    {{ number_format($user->spots_count ?? 0) }}
-                </p>
-                <p style="font-size:0.75rem; color:var(--muted-foreground); margin:0;">+3 este mes</p>
-            </div>
-        </div>
-    </div>
-
     {{-- Fila 1: Spots Recientes + Actividad Reciente --}}
     <div style="display:grid; gap:1rem; grid-template-columns:1fr 1fr;">
 
@@ -94,9 +76,6 @@
                 <div style="padding:2rem 0; text-align:center; color:var(--muted-foreground);">
                     <i data-lucide="map-pin" style="width:2rem;height:2rem; margin-bottom:0.75rem; opacity:0.4;"></i>
                     <p style="font-size:0.875rem;">Aún no has añadido spots</p>
-                    <a href="{{ route('spots.create') }}" class="btn btn-primary" style="margin-top:0.75rem; display:inline-flex;">
-                        Añadir Spot
-                    </a>
                 </div>
                 @endforelse
             </div>

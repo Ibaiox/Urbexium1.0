@@ -3,14 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Localizacion extends Model
 {
-    protected $table = 'localizaciones';
-
+     protected $table = 'localizaciones';
     protected $fillable = [
         'user_id',
         'ciudad_id',
@@ -27,46 +23,32 @@ class Localizacion extends Model
         'reports_count',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'latitud'            => 'decimal:7',
+        'longitud'           => 'decimal:7',
+        'visibility'         => 'boolean',
+        'is_active'          => 'boolean',
+        'deletion_requested' => 'boolean',
+    ];
+
+    // ── Relaciones ────────────────────────────────────────────────────────
+
+    public function user()
     {
-        return [
-            'latitud'            => 'float',
-            'longitud'           => 'float',
-            'visibility'         => 'boolean',
-            'is_active'          => 'boolean',
-            'deletion_requested' => 'boolean',
-            'reports_count'      => 'integer',
-        ];
+        return $this->belongsTo(User::class);
     }
 
-    // ─── Relaciones ────────────────────────────────────────────────────────────
-
-    public function user(): BelongsTo
+    public function ciudad()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Ciudad::class);
     }
 
-    public function ciudad(): BelongsTo
+    public function imagenes()
     {
-        return $this->belongsTo(Ciudad::class, 'ciudad_id');
+        return $this->hasMany(ImagenLocalizacion::class);
     }
 
-    public function imagenes(): HasMany
-    {
-        return $this->hasMany(ImagenLocalizacion::class, 'localizacion_id');
-    }
-
-    public function comentarios(): HasMany
-    {
-        return $this->hasMany(Comentario::class, 'localizacion_id');
-    }
-
-    public function reportes(): HasMany
-    {
-        return $this->hasMany(Reporte::class, 'localizacion_id');
-    }
-
-    public function materiales(): BelongsToMany
+    public function materiales()
     {
         return $this->belongsToMany(
             Material::class,
@@ -76,30 +58,35 @@ class Localizacion extends Model
         );
     }
 
-    public function usuariosQueLaGuardaron(): BelongsToMany
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
+    }
+
+    public function reportes()
+    {
+        return $this->hasMany(Reporte::class);
+    }
+
+    public function favoritadoPor()
     {
         return $this->belongsToMany(
             User::class,
             'favoritos',
             'localizacion_id',
             'user_id'
-        )->withTimestamps();
+        )->withPivot('created_at');
     }
 
-    // ─── Scopes ────────────────────────────────────────────────────────────────
-
-    public function scopeVisibles($query)
+    public function notificaciones()
     {
-        return $query->where('visibility', true)->where('is_active', true);
+        return $this->hasMany(Notificacion::class);
     }
 
-    public function scopeVerificadas($query)
-    {
-        return $query->where('verification_status', 'verificada');
-    }
+    // ── Helpers ───────────────────────────────────────────────────────────
 
-    public function scopePendientes($query)
+    public function getImagenPrincipalAttribute(): ?string
     {
-        return $query->where('verification_status', 'pendiente');
+        return $this->imagenes->first()?->url;
     }
 }

@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'rol_id',
@@ -27,66 +25,78 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'baneado'           => 'boolean',
+        'password'          => 'hashed',
+    ];
+
+    // ── Relaciones ────────────────────────────────────────────────────────
+
+    public function rol()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'baneado'           => 'boolean',
-        ];
+        return $this->belongsTo(Rol::class);
     }
 
-    // ─── Relaciones ────────────────────────────────────────────────────────────
-
-    public function rol(): BelongsTo
+    public function localizaciones()
     {
-        return $this->belongsTo(Rol::class, 'rol_id');
+        return $this->hasMany(Localizacion::class);
     }
 
-    public function localizaciones(): HasMany
+    public function comentarios()
     {
-        return $this->hasMany(Localizacion::class, 'user_id');
+        return $this->hasMany(Comentario::class);
     }
 
-    public function comentarios(): HasMany
+    public function reportes()
     {
-        return $this->hasMany(Comentario::class, 'user_id');
+        return $this->hasMany(Reporte::class);
     }
 
-    public function imagenes(): HasMany
-    {
-        return $this->hasMany(ImagenLocalizacion::class, 'user_id');
-    }
-
-    public function reportes(): HasMany
-    {
-        return $this->hasMany(Reporte::class, 'user_id');
-    }
-
-    public function favoritos(): BelongsToMany
+    public function favoritos()
     {
         return $this->belongsToMany(
             Localizacion::class,
             'favoritos',
             'user_id',
             'localizacion_id'
-        )->withTimestamps();
+        )->withPivot('created_at');
     }
 
-    // ─── Helpers ───────────────────────────────────────────────────────────────
-
-    public function esAdmin(): bool
+    public function pedidos()
     {
-        return $this->rol?->nombre === 'administrador';
+        return $this->hasMany(Pedido::class);
     }
 
-    public function esModerador(): bool
+    public function notificaciones()
     {
-        return $this->rol?->nombre === 'moderador';
+        return $this->hasMany(Notificacion::class);
     }
 
-    public function estaBaneado(): bool
+    public function imagenes()
+    {
+        return $this->hasMany(ImagenLocalizacion::class);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    public function isAdmin(): bool
+    {
+        return $this->rol?->nombre === 'admin';
+    }
+
+    public function isBanned(): bool
     {
         return (bool) $this->baneado;
     }
+
+    public function esAdmin(): bool
+{
+    return $this->rol?->nombre === 'admin';
+}
+
+public function esModerador(): bool
+{
+    return $this->rol?->nombre === 'moderador';
+}
 }
