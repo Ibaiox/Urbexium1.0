@@ -230,7 +230,7 @@ function paginacionEstilizada($paginator) {
                             <i data-lucide="image" style="width:2rem;height:2rem;color:var(--muted-foreground);opacity:0.4;"></i>
                         </div>
                         @endif
-                        <form method="POST" action="{{ route('favoritos.toggle', $spot) }}" style="position:absolute;top:0.5rem;right:0.5rem;">
+                        <form method="POST" action="{{ route('spots.fav', $spot) }}" style="position:absolute;top:0.5rem;right:0.5rem;">
                             @csrf @method('DELETE')
                             <button type="submit" style="width:2rem;height:2rem;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border:none;cursor:pointer;color:var(--destructive);display:flex;align-items:center;justify-content:center;">
                                 <i data-lucide="heart" style="width:1rem;height:1rem;fill:currentColor;"></i>

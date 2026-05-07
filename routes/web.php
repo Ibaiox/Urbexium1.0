@@ -52,7 +52,6 @@ Route::middleware(['auth', 'no.banned'])->group(function () {
     Route::put('/spots/{spot}',          [SpotController::class, 'update'])          ->name('spots.update');
     Route::delete('/spots/{spot}',       [SpotController::class, 'destroy'])         ->name('spots.destroy');
     Route::post('/spots/{spot}/fav',     [SpotController::class, 'toggleFavorito'])  ->name('spots.fav');
-    Route::post('/spots/{spot}/fav',     [SpotController::class, 'toggleFavorito'])  ->name('favoritos.toggle');
     Route::post('/spots/{spot}/comment', [SpotController::class, 'storeComentario']) ->name('spots.comment');
 
     // ── Comunidades ───────────────────────────────────────────────────────
