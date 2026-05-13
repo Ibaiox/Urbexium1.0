@@ -14,7 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar alias de middlewares personalizados
         $middleware->alias([
             'no.banned' => \App\Http\Middleware\NoBanned::class,
+            'is.admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

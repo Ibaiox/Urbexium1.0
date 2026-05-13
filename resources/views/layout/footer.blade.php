@@ -15,9 +15,32 @@
             Urbexium &copy; {{ date('Y') }} — Explora lo inexplorado
         </span>
     </div>
-    <nav style="display:flex; gap:1rem;">
-        <a href="#" style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none;">Términos</a>
-        <a href="#" style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none;">Privacidad</a>
-        <a href="#" style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none;">Contacto</a>
+    <nav style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+        <a href="{{ route('legal.aviso') }}"
+           style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none; transition:color 150ms;"
+           onmouseover="this.style.color='var(--foreground)'"
+           onmouseout="this.style.color='var(--muted-foreground)'">
+            Aviso Legal
+        </a>
+        <a href="{{ route('legal.privacidad') }}"
+           style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none; transition:color 150ms;"
+           onmouseover="this.style.color='var(--foreground)'"
+           onmouseout="this.style.color='var(--muted-foreground)'">
+            Privacidad
+        </a>
+        <a href="{{ route('legal.cookies') }}"
+           style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none; transition:color 150ms;"
+           onmouseover="this.style.color='var(--foreground)'"
+           onmouseout="this.style.color='var(--muted-foreground)'">
+            Cookies
+        </a>
+        @auth
+        <a href="{{ route('contacto.index') }}"
+           style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none; transition:color 150ms;"
+           onmouseover="this.style.color='var(--foreground)'"
+           onmouseout="this.style.color='var(--muted-foreground)'">
+            Contacto
+        </a>
+        @endauth
     </nav>
 </footer>

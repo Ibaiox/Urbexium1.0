@@ -89,4 +89,27 @@ class Localizacion extends Model
     {
         return $this->imagenes->first()?->url;
     }
+
+     public function valoraciones()
+    {
+        return $this->hasMany(\App\Models\Valoracion::class);
+    }
+
+    /** Media de puntuaciones (null si no hay votos) */
+    public function mediaValoracion(): ?float
+    {
+        $count = $this->valoraciones->count();
+        if ($count === 0) return null;
+        return round($this->valoraciones->avg('puntuacion'), 1);
+    }
+
+    /** Puntuación que dio el usuario autenticado (null si no ha votado) */
+    public function miValoracion(): ?int
+    {
+        if (!auth()->check()) return null;
+        return $this->valoraciones
+            ->where('user_id', auth()->id())
+            ->first()
+            ?->puntuacion;
+    }
 }

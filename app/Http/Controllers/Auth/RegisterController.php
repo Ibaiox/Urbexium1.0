@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Rol;
+use App\Mail\BienvenidaMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -36,15 +38,26 @@ class RegisterController extends Controller
      * Crear usuario — columnas reales: nombre, rol_id
      * El seeder debe tener un rol con nombre = 'usuario'
      */
-    protected function create(array $data)
+       protected function create(array $data)
     {
-        $rol = Rol::where('nombre', 'usuario')->first();
+        // Busca el rol "usuario" (o el que tengas por defecto)
+        $rolUsuario = \App\Models\Rol::where('nombre', 'usuario')->first();
 
-        return User::create([
-            'nombre'   => $data['nombre'],
+        $user = \App\Models\User::create([
+            'nombre'   => $data['nombre'] ?? $data['name'],
             'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-            'rol_id'   => $rol ? $rol->id : null,
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'rol_id'   => $rolUsuario?->id,
         ]);
+
+        // ── Enviar email de bienvenida ──────────────────────────────────
+        try {
+            Mail::to($user->email)->send(new BienvenidaMail($user));
+        } catch (\Throwable $e) {
+            // Si el correo falla, el registro sigue adelante igualmente
+            \Illuminate\Support\Facades\Log::warning('Email bienvenida fallido: ' . $e->getMessage());
+        }
+
+        return $user;
     }
 }

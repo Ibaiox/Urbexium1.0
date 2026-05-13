@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Localizacion;
 use App\Models\Material;
 use App\Models\Ciudad;
+use App\Models\UserActividad;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +42,11 @@ class SpotController extends Controller
 
         $isFavorito  = Auth::check() && Auth::user()->favoritos()->where('localizaciones.id', $spot->id)->exists();
         $esModerador = Auth::check() && (Auth::user()->esAdmin() || Auth::user()->esModerador());
+
+        // Registrar actividad de vista
+        if (Auth::check()) {
+            UserActividad::registrar('vista', "Visitaste \"{$spot->nombre}\"", $spot);
+        }
 
         return view('spots.show', compact('spot', 'isFavorito', 'esModerador'));
     }
@@ -90,6 +96,8 @@ class SpotController extends Controller
         }
 
         $this->subirImagenes($request, $spot);
+
+        UserActividad::registrar('spot_creado', "Creaste el spot \"{$spot->nombre}\"", $spot);
 
         return redirect()->route('spots.show', $spot)->with('success', 'Spot creado correctamente.');
     }
@@ -148,6 +156,8 @@ class SpotController extends Controller
 
         $this->subirImagenes($request, $spot);
 
+        UserActividad::registrar('spot_editado', "Editaste el spot \"{$spot->nombre}\"", $spot);
+
         return redirect()->route('spots.show', $spot)->with('success', 'Spot actualizado.');
     }
 
@@ -155,9 +165,11 @@ class SpotController extends Controller
     public function destroy(Localizacion $spot)
     {
         $this->checkModerador();
+        $nombre = $spot->nombre;
         foreach ($spot->imagenes as $img) {
             $this->borrarArchivoImagen($img->url);
         }
+        UserActividad::registrar('spot_borrado', "Eliminaste el spot \"{$nombre}\"", $spot);
         $spot->delete();
         return redirect()->route('spots.index')->with('success', 'Spot eliminado.');
     }
@@ -165,8 +177,16 @@ class SpotController extends Controller
     // ─── TOGGLE FAVORITO ───────────────────────────────────────────────────────
     public function toggleFavorito(Localizacion $spot)
     {
-        $result = Auth::user()->favoritos()->toggle($spot->id);
-        return response()->json(['favorito' => count($result['attached']) > 0]);
+        $result    = Auth::user()->favoritos()->toggle($spot->id);
+        $esFav     = count($result['attached']) > 0;
+
+        if ($esFav) {
+            UserActividad::registrar('favorito_add', "Añadiste \"{$spot->nombre}\" a favoritos", $spot);
+        } else {
+            UserActividad::registrar('favorito_rem', "Quitaste \"{$spot->nombre}\" de favoritos", $spot);
+        }
+
+        return response()->json(['favorito' => $esFav]);
     }
 
     // ─── COMENTARIO ────────────────────────────────────────────────────────────
@@ -174,6 +194,7 @@ class SpotController extends Controller
     {
         $request->validate(['contenido' => 'required|string|max:1000']);
         $spot->comentarios()->create(['user_id' => Auth::id(), 'contenido' => $request->contenido]);
+        UserActividad::registrar('comentario', "Comentaste en \"{$spot->nombre}\"", $spot);
         return back()->with('success', 'Comentario añadido.');
     }
 

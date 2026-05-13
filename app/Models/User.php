@@ -73,9 +73,19 @@ class User extends Authenticatable
         return $this->hasMany(Notificacion::class);
     }
 
+    public function actividad()
+    {
+        return $this->hasMany(\App\Models\UserActividad::class);
+    }
+
     public function imagenes()
     {
         return $this->hasMany(ImagenLocalizacion::class);
+    }
+
+    public function valoraciones()
+    {
+        return $this->hasMany(\App\Models\Valoracion::class);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
@@ -91,12 +101,12 @@ class User extends Authenticatable
     }
 
     public function esAdmin(): bool
-{
-    return $this->rol?->nombre === 'admin';
-}
+    {
+        return $this->rol?->nombre === 'admin';
+    }
 
-public function esModerador(): bool
-{
-    return $this->rol?->nombre === 'moderador';
-}
+    public function esModerador(): bool
+    {
+        return $this->rol?->nombre === 'moderador';
+    }
 }

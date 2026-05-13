@@ -9,6 +9,8 @@ use App\Models\Pedido;
 use App\Models\PedidoItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\PedidoConfirmadoMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class TiendaController extends Controller
@@ -18,7 +20,8 @@ class TiendaController extends Controller
         $this->middleware('auth');
     }
 
-    /** Listado de productos con filtro y paginación */
+    // ── Catálogo ──────────────────────────────────────────────────────────
+
     public function index(Request $request)
     {
         $query = Producto::where('activo', true);
@@ -35,17 +38,29 @@ class TiendaController extends Controller
         return view('tienda.index', compact('productos'));
     }
 
-    /** Formulario crear producto (solo admin) */
+    public function show(Producto $producto)
+    {
+        abort_if(! $producto->activo && ! Auth::user()->isAdmin(), 404);
+        $relacionados = Producto::where('activo', true)
+            ->where('categoria', $producto->categoria)
+            ->where('id', '!=', $producto->id)
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
+        return view('tienda.show', compact('producto', 'relacionados'));
+    }
+
+    // ── CRUD productos (admin) ────────────────────────────────────────────
+
     public function create()
     {
-        $this->authorize('admin');
+        abort_unless(Auth::user()->isAdmin(), 403);
         return view('tienda.create');
     }
 
-    /** Guardar nuevo producto */
     public function store(Request $request)
     {
-        $this->authorize('admin');
+        abort_unless(Auth::user()->isAdmin(), 403);
 
         $data = $request->validate([
             'nombre'      => 'required|string|max:255',
@@ -65,17 +80,15 @@ class TiendaController extends Controller
         return redirect()->route('tienda.index')->with('success', 'Producto añadido correctamente.');
     }
 
-    /** Formulario editar producto (solo admin) */
     public function edit(Producto $producto)
     {
-        $this->authorize('admin');
+        abort_unless(Auth::user()->isAdmin(), 403);
         return view('tienda.edit', compact('producto'));
     }
 
-    /** Actualizar producto */
     public function update(Request $request, Producto $producto)
     {
-        $this->authorize('admin');
+        abort_unless(Auth::user()->isAdmin(), 403);
 
         $data = $request->validate([
             'nombre'      => 'required|string|max:255',
@@ -84,7 +97,7 @@ class TiendaController extends Controller
             'stock'       => 'required|integer|min:0',
             'categoria'   => 'required|in:equipo,ropa,seguridad,accesorios',
             'imagen'      => 'nullable|image|max:2048',
-            'activo'      => 'boolean',
+            'activo'      => 'nullable|boolean',
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -94,15 +107,15 @@ class TiendaController extends Controller
             $data['imagen'] = $request->file('imagen')->store('productos', 'public');
         }
 
+        $data['activo'] = $request->boolean('activo');
         $producto->update($data);
 
         return redirect()->route('tienda.index')->with('success', 'Producto actualizado correctamente.');
     }
 
-    /** Eliminar producto (solo admin) */
     public function destroy(Producto $producto)
     {
-        $this->authorize('admin');
+        abort_unless(Auth::user()->isAdmin(), 403);
 
         if ($producto->imagen) {
             Storage::disk('public')->delete($producto->imagen);
@@ -112,50 +125,216 @@ class TiendaController extends Controller
         return redirect()->route('tienda.index')->with('success', 'Producto eliminado.');
     }
 
-    /** Crear pedido desde el carrito (datos enviados por JS) */
-    public function checkout(Request $request)
+    // ── Checkout ──────────────────────────────────────────────────────────
+
+    public function checkoutView()
+    {
+        return view('tienda.checkout');
+    }
+
+    // ── Stripe: crear PaymentIntent ───────────────────────────────────────
+
+    /**
+     * Crea un PaymentIntent en Stripe y devuelve el client_secret al frontend.
+     * El carrito viene del localStorage (enviado como JSON desde JS).
+     */
+    public function createPaymentIntent(Request $request)
     {
         $request->validate([
-            'items'            => 'required|array|min:1',
-            'items.*.id'       => 'required|exists:productos,id',
-            'items.*.qty'      => 'required|integer|min:1',
-            'direccion_envio'  => 'nullable|string|max:500',
+            'items'           => 'required|array|min:1',
+            'items.*.id'      => 'required|exists:productos,id',
+            'items.*.qty'     => 'required|integer|min:1',
+            'direccion_envio' => 'nullable|string|max:500',
         ]);
 
-        $total = 0;
-        $pedido = Pedido::create([
-            'user_id'        => Auth::id(),
-            'total'          => 0,
-            'estado'         => 'pendiente',
-            'direccion_envio'=> $request->direccion_envio,
-        ]);
+        // Calcular total en servidor (nunca confiar en el frontend)
+        $total      = 0;
+        $itemsData  = [];
 
         foreach ($request->items as $item) {
             $producto = Producto::findOrFail($item['id']);
-            $subtotal = $producto->precio * $item['qty'];
-            $total += $subtotal;
-
-            PedidoItem::create([
-                'pedido_id'      => $pedido->id,
-                'producto_id'    => $producto->id,
-                'cantidad'       => $item['qty'],
-                'precio_unitario'=> $producto->precio,
-            ]);
-
-            // Descontar stock
-            $producto->decrement('stock', $item['qty']);
+            abort_if(! $producto->activo, 422, 'Producto no disponible: ' . $producto->nombre);
+            abort_if($producto->stock < $item['qty'], 422, "Stock insuficiente para {$producto->nombre}.");
+            $total += $producto->precio * $item['qty'];
+            $itemsData[] = ['producto' => $producto, 'qty' => $item['qty']];
         }
 
-        $pedido->update(['total' => $total]);
+        // Stripe
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-        return response()->json(['success' => true, 'pedido_id' => $pedido->id]);
+        $intent = \Stripe\PaymentIntent::create([
+            'amount'   => (int) round($total * 100), // céntimos
+            'currency' => 'eur',
+            'metadata' => [
+                'user_id' => Auth::id(),
+            ],
+        ]);
+
+        // Guardar pedido en estado "pendiente" con el intent id
+        $pedido = Pedido::create([
+            'user_id'               => Auth::id(),
+            'total'                 => $total,
+            'estado'                => 'pendiente',
+            'direccion_envio'       => $request->direccion_envio,
+            'metodo_pago'           => 'stripe',
+            'stripe_payment_intent' => $intent->id,
+        ]);
+
+        foreach ($itemsData as $itemData) {
+            PedidoItem::create([
+                'pedido_id'       => $pedido->id,
+                'producto_id'     => $itemData['producto']->id,
+                'cantidad'        => $itemData['qty'],
+                'precio_unitario' => $itemData['producto']->precio,
+            ]);
+            $itemData['producto']->decrement('stock', $itemData['qty']);
+        }
+
+        return response()->json([
+            'client_secret' => $intent->client_secret,
+            'pedido_id'     => $pedido->id,
+        ]);
+    }
+  /** Cambio de estado en lote de pedidos */
+    public function bulkEstadoPedidos(Request $request)
+    {
+        $request->validate([
+            'pedidos'       => 'required|array|min:1',
+            'pedidos.*'     => 'integer|exists:pedidos,id',
+            'nuevo_estado'  => 'required|in:pendiente,procesando,enviado,entregado,cancelado',
+        ]);
+
+        $count = \App\Models\Pedido::whereIn('id', $request->pedidos)
+                    ->update(['estado' => $request->nuevo_estado]);
+
+        return back()->with('success', "{$count} pedido(s) actualizados a «{$request->nuevo_estado}».");
     }
 
-    /** Ver detalle de un pedido */
+
+    /**
+     * Webhook de Stripe — confirma el pago y cambia estado del pedido.
+     * Registrar en Stripe Dashboard: POST /stripe/webhook
+     */
+    public function stripeWebhook(Request $request)
+    {
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        $webhookSecret = config('services.stripe.webhook_secret');
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $request->getContent(),
+                $request->header('Stripe-Signature'),
+                $webhookSecret
+            );
+        } catch (\Exception $e) {
+            return response('Webhook error: ' . $e->getMessage(), 400);
+        }
+
+        if ($event->type === 'payment_intent.succeeded') {
+            $intentId = $event->data->object->id;
+            Pedido::where('stripe_payment_intent', $intentId)
+                  ->update(['estado' => 'procesando']);
+        }
+
+        if ($event->type === 'payment_intent.payment_failed') {
+            $intentId = $event->data->object->id;
+            $pedido   = Pedido::where('stripe_payment_intent', $intentId)->first();
+            if ($pedido && $pedido->estado === 'pendiente') {
+                foreach ($pedido->items as $item) {
+                    $item->producto->increment('stock', $item->cantidad);
+                }
+                $pedido->update(['estado' => 'cancelado']);
+            }
+        }
+
+        return response('OK', 200);
+    }
+
+    /**
+     * Página de pago exitoso — Stripe redirige aquí con payment_intent en la URL.
+     * También acepta pedido_id pasado directamente.
+     */
+   public function pagoExitoso(Request $request)
+{
+    if ($request->filled('payment_intent')) {
+        $pedido = Pedido::where('stripe_payment_intent', $request->payment_intent)
+                        ->where('user_id', Auth::id())
+                        ->firstOrFail();
+    } elseif ($request->filled('pedido_id')) {
+        $pedido = Pedido::where('id', $request->pedido_id)
+                        ->where('user_id', Auth::id())
+                        ->firstOrFail();
+    } else {
+        return redirect()->route('tienda.index');
+    }
+
+    $pedido->load('items.producto');
+
+    if (!$pedido->email_confirmacion_enviado) {
+        try {
+            $user = Auth::user();
+
+            Mail::to($user->email)->send(new PedidoConfirmadoMail($user, $pedido));
+
+            $pedido->update([
+                'email_confirmacion_enviado' => true,
+            ]);
+
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Email pedido fallido: ' . $e->getMessage());
+        }
+    }
+
+    return view('tienda.pago-exitoso', compact('pedido'));
+}
+
+    // ── Pedidos del usuario ───────────────────────────────────────────────
+
+    public function misPedidos()
+    {
+        $pedidos = Auth::user()
+            ->pedidos()
+            ->with('items.producto')
+            ->latest()
+            ->paginate(10);
+
+        return view('tienda.mis-pedidos', compact('pedidos'));
+    }
+
     public function showPedido(Pedido $pedido)
     {
-        $this->authorize('view', $pedido);
+        abort_unless($pedido->user_id === Auth::id() || Auth::user()->isAdmin(), 403);
         $pedido->load('items.producto');
         return view('tienda.pedido', compact('pedido'));
+    }
+
+    // ── Panel admin pedidos ───────────────────────────────────────────────
+
+    public function adminPedidos(Request $request)
+    {
+        abort_unless(Auth::user()->isAdmin(), 403);
+
+        $query = Pedido::with('user', 'items.producto')->latest();
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        $pedidos = $query->paginate(20);
+
+        return view('tienda.admin-pedidos', compact('pedidos'));
+    }
+
+    public function updateEstadoPedido(Request $request, Pedido $pedido)
+    {
+        abort_unless(Auth::user()->isAdmin(), 403);
+
+        $request->validate([
+            'estado' => 'required|in:pendiente,procesando,enviado,entregado,cancelado',
+        ]);
+
+        $pedido->update(['estado' => $request->estado]);
+
+        return back()->with('success', 'Estado del pedido actualizado.');
     }
 }

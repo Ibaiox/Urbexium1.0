@@ -46,10 +46,11 @@
             --ring: oklch(0.65 0.2 145);
             --radius: 0.75rem;
             --sidebar-w: 16rem;
-            --sidebar-collapsed-w: 4rem;
+            --sidebar-collapsed-w: 4.5rem;
             --sidebar: oklch(0.985 0 0);
             --sidebar-border: oklch(0.922 0 0);
         }
+
         .dark {
             --background: oklch(0.12 0.01 260);
             --foreground: oklch(0.95 0 0);
@@ -71,7 +72,10 @@
             --sidebar-border: oklch(0.22 0.01 260);
         }
 
-        *, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            border-color: var(--border);
+        }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -80,18 +84,22 @@
             margin: 0;
         }
 
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
 
         /* ─── NAVBAR ─── */
         .navbar {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 50;
             height: 4rem;
             border-bottom: 1px solid var(--border);
-            background-color: color-mix(in oklch, var(--background) 85%, transparent);
-            backdrop-filter: blur(20px);
+            background-color: var(--background);
         }
+
         .navbar-inner {
             display: flex;
             align-items: center;
@@ -113,13 +121,16 @@
             transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1);
             width: var(--sidebar-w);
         }
-        .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-w);
+        }
 
         .sidebar-overlay {
             position: fixed;
             inset: 0;
             z-index: 39;
-            background-color: rgba(0,0,0,0.55);
+            background-color: rgba(0, 0, 0, 0.55);
         }
 
         /* ─── MAIN CONTENT ─── */
@@ -142,20 +153,63 @@
             text-decoration: none;
             font-weight: 500;
             font-size: 0.875rem;
-            transition: background-color 150ms, color 150ms;
+            transition: background-color 150ms, color 150ms, box-shadow 150ms;
             white-space: nowrap;
             overflow: hidden;
         }
-        .nav-item:hover { background-color: var(--secondary); color: var(--foreground); }
+
+        .nav-item:hover {
+            background-color: var(--secondary);
+            color: var(--foreground);
+        }
+
         .nav-item.active {
             background-color: var(--primary);
             color: var(--primary-foreground);
             box-shadow: 0 4px 14px color-mix(in oklch, var(--primary) 35%, transparent);
         }
-        .nav-item-icon { flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
+
+        .nav-item-icon,
+        .nav-item svg {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: block;
+        }
+
         .nav-item-label {
             transition: opacity 200ms, width 200ms;
             overflow: hidden;
+        }
+
+        .sidebar.collapsed #main-nav {
+            padding: 0.75rem 0 !important;
+            align-items: center !important;
+        }
+
+        .sidebar.collapsed .nav-item {
+            width: 2.75rem !important;
+            min-width: 2.75rem !important;
+            height: 2.75rem !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0 !important;
+            border-radius: 0.85rem;
+        }
+
+        .sidebar.collapsed .nav-item-label {
+            display: none !important;
+            width: 0 !important;
+            opacity: 0 !important;
+        }
+
+        .sidebar.collapsed .nav-item svg {
+            margin: 0 !important;
+            position: static !important;
+            transform: none !important;
         }
 
         /* ─── CARDS ─── */
@@ -166,9 +220,20 @@
             border-radius: var(--radius);
             overflow: hidden;
         }
-        .card-header { padding: 1.25rem 1.5rem 0.75rem; }
-        .card-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
-        .card-content { padding: 0.75rem 1.5rem 1.25rem; }
+
+        .card-header {
+            padding: 1.25rem 1.5rem 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .card-content {
+            padding: 0.75rem 1.5rem 1.25rem;
+        }
 
         /* ─── BADGES ─── */
         .badge {
@@ -179,10 +244,26 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
-        .badge-primary { background-color: color-mix(in oklch, var(--primary) 15%, transparent); color: var(--primary); }
-        .badge-accent  { background-color: color-mix(in oklch, var(--accent) 15%, transparent); color: var(--accent); }
-        .badge-muted   { background-color: var(--muted); color: var(--muted-foreground); }
-        .badge-destructive { background-color: color-mix(in oklch, var(--destructive) 15%, transparent); color: var(--destructive); }
+
+        .badge-primary {
+            background-color: color-mix(in oklch, var(--primary) 15%, transparent);
+            color: var(--primary);
+        }
+
+        .badge-accent {
+            background-color: color-mix(in oklch, var(--accent) 15%, transparent);
+            color: var(--accent);
+        }
+
+        .badge-muted {
+            background-color: var(--muted);
+            color: var(--muted-foreground);
+        }
+
+        .badge-destructive {
+            background-color: color-mix(in oklch, var(--destructive) 15%, transparent);
+            color: var(--destructive);
+        }
 
         /* ─── BUTTONS ─── */
         .btn {
@@ -199,15 +280,50 @@
             text-decoration: none;
             font-family: inherit;
         }
-        .btn-primary { background-color: var(--primary); color: var(--primary-foreground); }
-        .btn-primary:hover { opacity: 0.9; box-shadow: 0 4px 14px color-mix(in oklch, var(--primary) 40%, transparent); }
-        .btn-ghost { background-color: transparent; color: var(--foreground); }
-        .btn-ghost:hover { background-color: var(--secondary); }
-        .btn-secondary { background-color: var(--secondary); color: var(--secondary-foreground); }
-        .btn-secondary:hover { opacity: 0.85; }
-        .btn-destructive { background-color: var(--destructive); color: #fff; }
-        .btn-destructive:hover { opacity: 0.9; }
-        .btn-icon { padding: 0.5rem; width: 2.25rem; height: 2.25rem; justify-content: center; }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 14px color-mix(in oklch, var(--primary) 40%, transparent);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--foreground);
+        }
+
+        .btn-ghost:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.85;
+        }
+
+        .btn-destructive {
+            background-color: var(--destructive);
+            color: #fff;
+        }
+
+        .btn-destructive:hover {
+            opacity: 0.9;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            width: 2.25rem;
+            height: 2.25rem;
+            justify-content: center;
+        }
 
         /* ─── INPUTS ─── */
         .input {
@@ -223,9 +339,21 @@
             transition: border-color 200ms;
             outline: none;
         }
-        .input:focus { border-color: var(--ring); box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 20%, transparent); }
-        .input::placeholder { color: var(--muted-foreground); }
-        textarea.input { height: auto; padding: 0.625rem 0.75rem; resize: vertical; }
+
+        .input:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px color-mix(in oklch, var(--ring) 20%, transparent);
+        }
+
+        .input::placeholder {
+            color: var(--muted-foreground);
+        }
+
+        textarea.input {
+            height: auto;
+            padding: 0.625rem 0.75rem;
+            resize: vertical;
+        }
 
         /* ─── AVATAR ─── */
         .avatar {
@@ -240,17 +368,50 @@
         }
 
         /* ─── LOGO ─── */
-        .logo-box {
-            width: 2.25rem; height: 2.25rem;
-            border-radius: var(--radius);
-            background-color: var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1.125rem;
-            color: var(--primary-foreground);
+        .logo-img {
+            height: 3.5rem;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .logo-light {
+            display: block;
+            filter: invert(1);
+            mix-blend-mode: multiply;
+        }
+
+        .logo-dark {
+            display: none;
+            mix-blend-mode: screen;
+        }
+
+        .dark .logo-light {
+            display: none;
+        }
+
+        .dark .logo-dark {
+            display: block;
+        }
+
+        .admin-nav-sep {
+            height: 1px;
+            background: var(--sidebar-border);
+            margin: 0.4rem 0;
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        .sidebar.collapsed .admin-nav-sep {
+            width: 2.75rem;
+            margin: 0.4rem auto;
         }
 
         /* ─── DROPDOWN ─── */
-        .dropdown { position: relative; }
+        .dropdown {
+            position: relative;
+        }
+
         .dropdown-menu {
             position: absolute;
             right: 0;
@@ -259,10 +420,11 @@
             background-color: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             z-index: 100;
             overflow: hidden;
         }
+
         .dropdown-item {
             display: flex;
             align-items: center;
@@ -279,26 +441,55 @@
             text-align: left;
             font-family: inherit;
         }
-        .dropdown-item:hover { background-color: var(--secondary); }
-        .dropdown-item.danger { color: var(--destructive); }
-        .dropdown-separator { border-top: 1px solid var(--border); margin: 0.25rem 0; }
+
+        .dropdown-item:hover {
+            background-color: var(--secondary);
+        }
+
+        .dropdown-item.danger {
+            color: var(--destructive);
+        }
+
+        .dropdown-separator {
+            border-top: 1px solid var(--border);
+            margin: 0.25rem 0;
+        }
 
         /* ─── NOTIF ─── */
         .notif-dot {
-            position: absolute; top: -2px; right: -2px;
-            width: 1rem; height: 1rem;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 1rem;
+            height: 1rem;
             border-radius: 9999px;
             background-color: var(--primary);
             color: var(--primary-foreground);
-            font-size: 0.625rem; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* ─── SCROLLBAR ─── */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted-foreground);
+        }
 
         /* ─── MOBILE ─── */
         @media (max-width: 1023px) {
@@ -307,13 +498,18 @@
                 transform: translateX(-100%);
                 transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
             }
+
             .sidebar.mobile-open {
                 transform: translateX(0);
             }
+
             .main-content {
                 margin-left: 0 !important;
             }
-            .collapse-btn { display: none !important; }
+
+            .collapse-btn {
+                display: none !important;
+            }
         }
     </style>
 
@@ -326,7 +522,7 @@
 <header class="navbar">
     <div class="navbar-inner">
 
-        {{-- Left: hamburger (móvil) + logo --}}
+        {{-- Left: hamburger móvil + logo --}}
         <div style="display:flex; align-items:center; gap:1rem;">
             <button class="btn btn-ghost btn-icon"
                 id="mobile-menu-btn"
@@ -337,8 +533,19 @@
             </button>
 
             <a href="{{ route('dashboard') }}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none;">
-                <div class="logo-box">U</div>
-                <span style="font-size:1.25rem; font-weight:700; color:var(--foreground);" id="logo-text">Urbexium</span>
+                {{-- Logo claro para modo claro --}}
+                <img src="{{ asset('images/logo-dark.jpg') }}"
+                     class="logo-img logo-light"
+                     alt="Urbexium"
+                     id="logo-img-light">
+
+                {{-- Logo blanco para modo oscuro --}}
+                <img src="{{ asset('images/logo-white.jpg') }}"
+                     class="logo-img logo-dark"
+                     alt="Urbexium"
+                     id="logo-img-dark">
+
+                <span style="font-size:1.1rem; font-weight:800; letter-spacing:-0.04em; color:var(--foreground);" id="logo-text">Urbexium</span>
             </a>
         </div>
 
@@ -363,7 +570,7 @@
                 onclick="toggleDarkMode()"
                 id="darkmode-btn"
                 title="Cambiar tema">
-                <i data-lucide="sun"  id="icon-sun"  style="width:1.25rem;height:1.25rem; display:none;"></i>
+                <i data-lucide="sun" id="icon-sun" style="width:1.25rem;height:1.25rem; display:none;"></i>
                 <i data-lucide="moon" id="icon-moon" style="width:1.25rem;height:1.25rem;"></i>
             </button>
 
@@ -381,17 +588,89 @@
 
             @auth
             {{-- Notificaciones --}}
+            @php
+                $notifs       = Auth::user()->notificaciones()->latest()->take(10)->get();
+                $notifNoLeidas = $notifs->where('leida', false)->count();
+            @endphp
             <div style="position:relative;" id="notif-wrapper">
                 <button class="btn btn-ghost btn-icon" onclick="toggleDropdown('notif-menu')" style="position:relative;">
                     <i data-lucide="bell" style="width:1.25rem;height:1.25rem;"></i>
+                    @if($notifNoLeidas > 0)
+                    <span style="position:absolute; top:0.25rem; right:0.25rem; width:0.5rem; height:0.5rem;
+                        background:var(--destructive); border-radius:50%; display:block;"></span>
+                    @endif
                 </button>
-                <div id="notif-menu" class="dropdown-menu" style="display:none; min-width:20rem;">
-                    <div style="padding:1rem; border-bottom:1px solid var(--border);">
-                        <p style="font-weight:600; font-size:0.9375rem; margin:0;">Notificaciones</p>
+                <div id="notif-menu" class="dropdown-menu" style="display:none; min-width:22rem; max-height:28rem; overflow-y:auto;">
+                    <div style="padding:0.875rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                        <p style="font-weight:600; font-size:0.9375rem; margin:0;">
+                            Notificaciones
+                            @if($notifNoLeidas > 0)
+                            <span style="margin-left:0.5rem; font-size:0.75rem; font-weight:500;
+                                background:var(--destructive); color:#fff; padding:0.1rem 0.45rem;
+                                border-radius:9999px;">{{ $notifNoLeidas }}</span>
+                            @endif
+                        </p>
+                        @if($notifs->isNotEmpty())
+                        <form method="POST" action="{{ route('notificaciones.markAllRead') }}">
+                            @csrf @method('PATCH')
+                            <button type="submit" style="font-size:0.75rem; background:none; border:none;
+                                color:var(--muted-foreground); cursor:pointer; padding:0;">
+                                Marcar todas
+                            </button>
+                        </form>
+                        @endif
                     </div>
+
+                    @forelse($notifs as $notif)
+                    @php
+                        $tipoColor = match($notif->tipo) {
+                            'info'             => 'var(--primary)',
+                            'aviso'            => '#f59e0b',
+                            'alerta'           => 'var(--destructive)',
+                            'spot_verificado'  => '#22c55e',
+                            'spot_rechazado'   => 'var(--destructive)',
+                            'ban'              => 'var(--destructive)',
+                            default            => 'var(--muted-foreground)',
+                        };
+                        $tipoIcon = match($notif->tipo) {
+                            'info'             => 'info',
+                            'aviso'            => 'alert-triangle',
+                            'alerta'           => 'alert-circle',
+                            'spot_verificado'  => 'check-circle',
+                            'spot_rechazado'   => 'x-circle',
+                            'ban'              => 'shield-off',
+                            default            => 'bell',
+                        };
+                    @endphp
+                    <div style="display:flex; gap:0.75rem; padding:0.875rem 1rem;
+                        border-bottom:1px solid var(--border);
+                        background:{{ $notif->leida ? 'transparent' : 'color-mix(in oklch, var(--primary) 5%, transparent)' }};">
+                        <div style="flex-shrink:0; margin-top:0.125rem;">
+                            <i data-lucide="{{ $tipoIcon }}" style="width:1rem;height:1rem; color:{{ $tipoColor }};"></i>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <p style="font-size:0.8125rem; font-weight:600; margin:0 0 0.2rem;">{{ $notif->titulo }}</p>
+                            <p style="font-size:0.75rem; color:var(--muted-foreground); margin:0 0 0.35rem; line-height:1.4;">{{ $notif->mensaje }}</p>
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <span style="font-size:0.7rem; color:var(--muted-foreground);">{{ $notif->created_at->diffForHumans() }}</span>
+                                @if(!$notif->leida)
+                                <form method="POST" action="{{ route('notificaciones.markRead', $notif) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" style="font-size:0.7rem; background:none; border:none;
+                                        color:var(--primary); cursor:pointer; padding:0;">
+                                        Marcar leída
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @empty
                     <div style="padding:2rem; text-align:center; color:var(--muted-foreground); font-size:0.875rem;">
+                        <i data-lucide="bell-off" style="width:1.5rem;height:1.5rem; margin-bottom:0.5rem; opacity:0.4; display:block; margin-inline:auto;"></i>
                         Sin notificaciones nuevas
                     </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -446,14 +725,17 @@
 <aside class="sidebar" id="main-sidebar">
     <div style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
 
-        <nav style="flex:1; padding:0.75rem; display:flex; flex-direction:column; gap:0.25rem; overflow-y:auto; overflow-x:hidden;">
+        <nav id="main-nav" style="flex:1; padding:0.75rem; display:flex; flex-direction:column; align-items:stretch; gap:0.25rem; overflow-y:auto; overflow-x:hidden;">
             @php
                 $navItems = [
-                    ['route' => 'dashboard',         'icon' => 'home',         'label' => 'Inicio'],
-                    ['route' => 'spots.index',        'icon' => 'map-pin',      'label' => 'Spots'],
-                    ['route' => 'map',                'icon' => 'map',          'label' => 'Mapa'],
-                    ['route' => 'comunidades.index',  'icon' => 'users',        'label' => 'Comunidades'],
-                   ['route' => 'tienda.index', 'icon' => 'shopping-bag', 'label' => 'Tienda'],
+
+
+                    ['route' => 'dashboard',        'icon' => 'home',         'label' => 'Inicio'],
+                    ['route' => 'spots.index',      'icon' => 'map-pin',      'label' => 'Spots'],
+                    ['route' => 'map',              'icon' => 'map',          'label' => 'Mapa'],
+                    ['route' => 'comunidades.index','icon' => 'users',        'label' => 'Comunidades'],
+                    ['route' => 'tienda.index',     'icon' => 'shopping-bag', 'label' => 'Tienda'],
+                     ['route' => 'contacto.index', 'icon' => 'mail', 'label' => 'Contacto'],
                 ];
             @endphp
 
@@ -466,10 +748,45 @@
                     <span class="nav-item-label sidebar-label">{{ $item['label'] }}</span>
                 </a>
             @endforeach
+
+            @if(Auth::check() && Auth::user()->esAdmin())
+                @php $isActive = request()->routeIs('admin.*'); @endphp
+                <div class="admin-nav-sep"></div>
+                <a href="{{ route('admin.index') }}"
+                    class="nav-item {{ $isActive ? 'active' : '' }}"
+                    title="Admin Panel">
+                    <i data-lucide="shield" class="nav-item-icon"></i>
+                    <span class="nav-item-label sidebar-label">Admin Panel</span>
+                </a>
+            @endif
         </nav>
 
-        {{-- Collapse toggle (solo desktop) --}}
-        <div style="padding:0.75rem; border-top:1px solid var(--sidebar-border);" class="collapse-btn">
+        {{-- Enlaces legales (visibles solo cuando el sidebar está expandido) --}}
+        <div class="sidebar-legal" style="padding:0.75rem; border-top:1px solid var(--sidebar-border);">
+            <div class="sidebar-legal-links" style="display:flex; flex-direction:column; gap:0.125rem; margin-bottom:0.5rem;">
+                <a href="{{ route('legal.privacidad') }}"
+                    class="nav-item {{ request()->routeIs('legal.privacidad') ? 'active' : '' }}"
+                    title="Privacidad">
+                    <i data-lucide="shield" class="nav-item-icon"></i>
+                    <span class="nav-item-label sidebar-label" style="font-size:0.8125rem;">Privacidad</span>
+                </a>
+                <a href="{{ route('legal.cookies') }}"
+                    class="nav-item {{ request()->routeIs('legal.cookies') ? 'active' : '' }}"
+                    title="Cookies">
+                    <i data-lucide="cookie" class="nav-item-icon"></i>
+                    <span class="nav-item-label sidebar-label" style="font-size:0.8125rem;">Cookies</span>
+                </a>
+                <a href="{{ route('legal.aviso') }}"
+                    class="nav-item {{ request()->routeIs('legal.aviso') ? 'active' : '' }}"
+                    title="Aviso Legal">
+                    <i data-lucide="scale" class="nav-item-icon"></i>
+                    <span class="nav-item-label sidebar-label" style="font-size:0.8125rem;">Aviso Legal</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Collapse toggle solo desktop --}}
+        <div style="padding:0.5rem 0.75rem 0.75rem; border-top:1px solid var(--sidebar-border);" class="collapse-btn">
             <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()" style="width:100%; justify-content:center;" title="Colapsar">
                 <i data-lucide="chevron-left" id="collapse-icon" style="width:1.25rem;height:1.25rem;"></i>
             </button>
@@ -486,6 +803,7 @@
         {{ session('success') }}
     </div>
     @endif
+
     @if(session('error'))
     <div style="margin-bottom:1rem; padding:0.875rem 1.25rem; background:color-mix(in oklch, var(--destructive) 12%, transparent); border:1px solid color-mix(in oklch, var(--destructive) 30%, transparent); border-radius:var(--radius); color:var(--destructive); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
         <i data-lucide="x-circle" style="width:1rem;height:1rem;flex-shrink:0;"></i>
@@ -502,36 +820,54 @@
 <script>
     lucide.createIcons();
 
-    const sidebar      = document.getElementById('main-sidebar');
-    const mainContent  = document.getElementById('main-content');
+    const sidebar = document.getElementById('main-sidebar');
+    const mainContent = document.getElementById('main-content');
     const collapseIcon = document.getElementById('collapse-icon');
-    const logoText     = document.getElementById('logo-text');
-    const usernameText = document.getElementById('username-text');
-    const labels       = document.querySelectorAll('.sidebar-label');
+    const labels = document.querySelectorAll('.sidebar-label');
 
     let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    let isMobile    = window.innerWidth < 1024;
+    let isMobile = window.innerWidth < 1024;
 
     function applyDesktopState() {
+        sidebar.classList.remove('mobile-open');
+        document.getElementById('mobile-menu-btn').style.display = 'none';
+        document.getElementById('sidebar-overlay').style.display = 'none';
+
         if (isCollapsed) {
             sidebar.classList.add('collapsed');
             mainContent.style.marginLeft = 'var(--sidebar-collapsed-w)';
-            if (collapseIcon) collapseIcon.setAttribute('data-lucide', 'chevron-right');
-            labels.forEach(l => l.style.opacity = '0');
+
+            if (collapseIcon) {
+                collapseIcon.setAttribute('data-lucide', 'chevron-right');
+            }
+
+            labels.forEach(label => {
+                label.style.opacity = '0';
+            });
         } else {
             sidebar.classList.remove('collapsed');
             mainContent.style.marginLeft = 'var(--sidebar-w)';
-            if (collapseIcon) collapseIcon.setAttribute('data-lucide', 'chevron-left');
-            labels.forEach(l => l.style.opacity = '1');
+
+            if (collapseIcon) {
+                collapseIcon.setAttribute('data-lucide', 'chevron-left');
+            }
+
+            labels.forEach(label => {
+                label.style.opacity = '1';
+            });
         }
+
         lucide.createIcons();
     }
 
     function applyMobileState() {
         mainContent.style.marginLeft = '0';
         sidebar.classList.remove('collapsed');
-        labels.forEach(l => l.style.opacity = '1');
+        labels.forEach(label => {
+            label.style.opacity = '1';
+        });
         document.getElementById('mobile-menu-btn').style.display = 'flex';
+        lucide.createIcons();
     }
 
     function toggleSidebar() {
@@ -542,6 +878,7 @@
 
     function toggleMobileSidebar() {
         const overlay = document.getElementById('sidebar-overlay');
+
         if (sidebar.classList.contains('mobile-open')) {
             closeMobileSidebar();
         } else {
@@ -563,10 +900,16 @@
 
     window.addEventListener('resize', () => {
         const nowMobile = window.innerWidth < 1024;
+
         if (nowMobile !== isMobile) {
             isMobile = nowMobile;
             closeMobileSidebar();
-            if (isMobile) { applyMobileState(); } else { applyDesktopState(); }
+
+            if (isMobile) {
+                applyMobileState();
+            } else {
+                applyDesktopState();
+            }
         }
     });
 
@@ -574,8 +917,8 @@
 
     function applyDarkMode() {
         document.documentElement.classList.toggle('dark', dark);
-        document.getElementById('icon-sun').style.display  = dark ? 'block' : 'none';
-        document.getElementById('icon-moon').style.display = dark ? 'none'  : 'block';
+        document.getElementById('icon-sun').style.display = dark ? 'block' : 'none';
+        document.getElementById('icon-moon').style.display = dark ? 'none' : 'block';
     }
 
     function toggleDarkMode() {
@@ -589,8 +932,14 @@
     function toggleDropdown(id) {
         const menu = document.getElementById(id);
         const isOpen = menu.style.display === 'block';
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
-        if (!isOpen) menu.style.display = 'block';
+
+        document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+            dropdown.style.display = 'none';
+        });
+
+        if (!isOpen) {
+            menu.style.display = 'block';
+        }
     }
 
     document.addEventListener('click', function(e) {
@@ -599,8 +948,11 @@
             const el = document.getElementById(id);
             return el && el.contains(e.target);
         });
+
         if (!clickedInside) {
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
         }
     });
 </script>

@@ -36,15 +36,14 @@
                 <i data-lucide="shopping-cart" style="width:1rem; height:1rem;"></i>
                 Carrito
                 <span
-                    id="cart-badge"
+                    id="cart-count-badge"
                     style="
                         display:none; position:absolute; top:-0.5rem; right:-0.5rem;
                         min-width:1.25rem; height:1.25rem; padding:0 0.3rem;
                         border-radius:9999px; font-size:0.7rem; font-weight:700;
                         background:var(--primary); color:var(--primary-foreground);
-                        display:flex; align-items:center; justify-content:center;
+                        align-items:center; justify-content:center;
                     "
-                    id="cart-count-badge"
                 >0</span>
             </button>
         </div>
@@ -281,8 +280,29 @@
 
     {{-- Paginación --}}
     @if(isset($productos) && $productos->hasPages())
-    <div style="display:flex; justify-content:center; margin-top:1rem;">
-        {{ $productos->appends(request()->query())->links() }}
+    <div style="display:flex; justify-content:center; align-items:center; gap:0.375rem; margin-top:1rem; flex-wrap:wrap;">
+        {{-- Anterior --}}
+        @if($productos->onFirstPage())
+            <span style="height:2.25rem;padding:0 0.875rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--secondary);color:var(--muted-foreground);font-size:0.875rem;display:inline-flex;align-items:center;opacity:0.5;cursor:not-allowed;">‹ Anterior</span>
+        @else
+            <a href="{{ $productos->appends(request()->query())->previousPageUrl() }}" style="height:2.25rem;padding:0 0.875rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:0.875rem;display:inline-flex;align-items:center;text-decoration:none;transition:border-color 150ms;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">‹ Anterior</a>
+        @endif
+
+        {{-- Números --}}
+        @foreach($productos->appends(request()->query())->getUrlRange(1, $productos->lastPage()) as $page => $url)
+            @if($page == $productos->currentPage())
+                <span style="height:2.25rem;min-width:2.25rem;padding:0 0.75rem;border-radius:var(--radius);border:1px solid var(--primary);background:color-mix(in oklch,var(--primary) 12%,transparent);color:var(--primary);font-size:0.875rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ $page }}</span>
+            @else
+                <a href="{{ $url }}" style="height:2.25rem;min-width:2.25rem;padding:0 0.75rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:0.875rem;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;transition:border-color 150ms;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">{{ $page }}</a>
+            @endif
+        @endforeach
+
+        {{-- Siguiente --}}
+        @if($productos->hasMorePages())
+            <a href="{{ $productos->appends(request()->query())->nextPageUrl() }}" style="height:2.25rem;padding:0 0.875rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:0.875rem;display:inline-flex;align-items:center;text-decoration:none;transition:border-color 150ms;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">Siguiente ›</a>
+        @else
+            <span style="height:2.25rem;padding:0 0.875rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--secondary);color:var(--muted-foreground);font-size:0.875rem;display:inline-flex;align-items:center;opacity:0.5;cursor:not-allowed;">Siguiente ›</span>
+        @endif
     </div>
     @endif
 
@@ -360,7 +380,7 @@
     </div>
 
     {{-- Footer carrito --}}
-    <div id="cart-footer" style="display:none; padding:1.25rem 1.5rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:1rem;">
+    <div id="cart-footer" style="display:none; padding:1.25rem 1.5rem; border-top:1px solid var(--border); flex-direction:column; gap:1rem;">
         <div style="display:flex; flex-direction:column; gap:0.5rem;">
             <div style="display:flex; justify-content:space-between; font-size:0.875rem; color:var(--muted-foreground);">
                 <span>Subtotal</span>
@@ -395,7 +415,7 @@
 {{-- Modal confirmar checkout --}}
 <div id="checkout-modal" style="
     display:none; position:fixed; inset:0; z-index:200;
-    display:none; align-items:center; justify-content:center;
+    align-items:center; justify-content:center;
     background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
 ">
     <div style="
@@ -488,7 +508,12 @@ function addToCart(id, name, price, image) {
     }
     saveCart();
     renderCart();
-    showToast('Producto añadido al carrito', 'success');
+    // Abrir drawer si está cerrado
+    const drawer = document.getElementById('cart-drawer');
+    if (drawer.style.right !== '0px') {
+        toggleCart();
+    }
+    showToast('✓ Añadido al carrito', 'success');
 }
 
 function removeFromCart(id) {
@@ -525,14 +550,13 @@ function renderCart() {
 
     // Items
     const container = document.getElementById('cart-items');
-    const empty = document.getElementById('cart-empty');
-    const footer = document.getElementById('cart-footer');
+    const empty     = document.getElementById('cart-empty');
+    const footer    = document.getElementById('cart-footer');
 
     if (cart.length === 0) {
-        container.innerHTML = '';
-        container.appendChild(empty);
         empty.style.display = 'flex';
         footer.style.display = 'none';
+        container.querySelectorAll('.cart-item').forEach(el => el.remove());
         return;
     }
 
@@ -555,7 +579,7 @@ function renderCart() {
             <div style="width:4.5rem; height:4.5rem; border-radius:calc(var(--radius) - 4px); overflow:hidden; background:var(--border); flex-shrink:0;">
                 ${item.image
                     ? `<img src="${item.image}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;">`
-                    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i data-lucide="package" style="width:1.5rem;height:1.5rem;color:var(--muted-foreground);opacity:0.5;"></i></div>`
+                    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.4;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>`
                 }
             </div>
             <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:0.375rem; min-width:0;">
@@ -565,34 +589,22 @@ function renderCart() {
                 </div>
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <button onclick="updateQty(${item.id}, -1)" style="
-                            width:1.75rem; height:1.75rem; border-radius:calc(var(--radius) - 4px);
-                            border:1px solid var(--border); background:var(--card);
-                            cursor:pointer; display:flex; align-items:center; justify-content:center;
-                        "><i data-lucide="minus" style="width:0.75rem; height:0.75rem;"></i></button>
+                        <button onclick="updateQty(${item.id}, -1)" style="width:1.75rem;height:1.75rem;border-radius:calc(var(--radius) - 4px);border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
                         <span style="font-size:0.875rem; font-weight:600; min-width:1.5rem; text-align:center;">${item.qty}</span>
-                        <button onclick="updateQty(${item.id}, 1)" style="
-                            width:1.75rem; height:1.75rem; border-radius:calc(var(--radius) - 4px);
-                            border:1px solid var(--border); background:var(--card);
-                            cursor:pointer; display:flex; align-items:center; justify-content:center;
-                        "><i data-lucide="plus" style="width:0.75rem; height:0.75rem;"></i></button>
+                        <button onclick="updateQty(${item.id}, 1)" style="width:1.75rem;height:1.75rem;border-radius:calc(var(--radius) - 4px);border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
                     </div>
-                    <button onclick="removeFromCart(${item.id})" style="
-                        width:1.75rem; height:1.75rem; border-radius:calc(var(--radius) - 4px);
-                        border:none; background:transparent; cursor:pointer;
-                        color:var(--muted-foreground); display:flex; align-items:center; justify-content:center;
-                    "
-                    onmouseover="this.style.color='var(--destructive)'"
-                    onmouseout="this.style.color='var(--muted-foreground)'"
-                    ><i data-lucide="trash-2" style="width:0.875rem; height:0.875rem;"></i></button>
+                    <button onclick="removeFromCart(${item.id})" style="width:1.75rem;height:1.75rem;border-radius:calc(var(--radius) - 4px);border:none;background:transparent;cursor:pointer;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='var(--destructive)'" onmouseout="this.style.color='var(--muted-foreground)'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
                 </div>
             </div>
         `;
         container.appendChild(div);
     });
-
-    // Re-init lucide icons in new elements
-    if (window.lucide) lucide.createIcons();
 
     // Totals
     document.getElementById('cart-subtotal').textContent = total.toFixed(2).replace('.', ',') + ' €';
@@ -618,11 +630,9 @@ function closeCheckoutModal() {
 }
 
 function confirmCheckout() {
-    // Aquí iría el fetch/POST al endpoint de pedido
     closeCheckoutModal();
     toggleCart();
-    clearCart();
-    showToast('¡Pedido realizado correctamente! Te contactaremos pronto.', 'success');
+    window.location.href = '{{ route("tienda.checkout") }}';
 }
 
 // =================== FILTROS ===================

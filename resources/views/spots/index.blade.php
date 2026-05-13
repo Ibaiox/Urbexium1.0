@@ -36,7 +36,7 @@
                 {{ $spots->total() }} lugar{{ $spots->total() !== 1 ? 'es' : '' }} inexplorado{{ $spots->total() !== 1 ? 's' : '' }} te espera{{ $spots->total() !== 1 ? 'n' : '' }}
             </p>
         </div>
-        @if(Auth::user()->esAdmin() || Auth::user()->esModerador())
+        @if(Auth::check() && (Auth::user()->esAdmin() || Auth::user()->esModerador()))
         <a href="{{ route('spots.create') }}" class="btn btn-primary">
             <i data-lucide="plus" style="width:1rem;height:1rem;"></i>
             Añadir Spot
@@ -93,7 +93,7 @@
                 <i data-lucide="map-pin" style="width:3rem;height:3rem; opacity:0.3; margin-bottom:1rem;"></i>
                 <p style="font-size:1rem; font-weight:500; margin:0 0 0.25rem;">No se encontraron spots</p>
                 <p style="font-size:0.875rem; margin:0 0 1rem;">Prueba con otros filtros o añade el primero</p>
-                @if(Auth::user()->esAdmin() || Auth::user()->esModerador())
+                @if(Auth::check() && (Auth::user()->esAdmin() || Auth::user()->esModerador()))
                 <a href="{{ route('spots.create') }}" class="btn btn-primary" style="display:inline-flex;">
                     <i data-lucide="plus" style="width:1rem;height:1rem;"></i>
                     Añadir Spot

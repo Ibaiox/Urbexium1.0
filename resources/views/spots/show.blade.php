@@ -30,6 +30,10 @@
 
     /* Mini mapa en sidebar */
     #mini-map { height:160px; border-radius:calc(var(--radius)-2px); border:1px solid var(--border); z-index:0; }
+
+    /* Estrellas valoración */
+    .star-btn { cursor:pointer; transition:transform 120ms; }
+    .star-btn:hover { transform:scale(1.2); }
 </style>
 @endpush
 
@@ -41,6 +45,14 @@
     $imagenes     = $spot->imagenes;
     $imgCount     = $imagenes->count();
     $galleryClass = $imgCount === 1 ? 'one' : ($imgCount === 2 ? 'two' : 'many');
+
+    // Valoraciones
+    $mediaVal  = $spot->valoraciones->count() ? round($spot->valoraciones->avg('puntuacion'), 1) : null;
+    $totalVotos = $spot->valoraciones->count();
+    $miVoto    = auth()->check()
+        ? $spot->valoraciones->where('user_id', auth()->id())->first()?->puntuacion
+        : null;
+    $esMiSpot  = auth()->check() && $spot->user_id === auth()->id();
 @endphp
 
 <div style="max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
@@ -62,7 +74,6 @@
             <div class="img-gallery {{ $galleryClass }}" style="height:{{ $imgCount === 1 ? '22rem' : '20rem' }};">
                 @foreach($imagenes->take($imgCount === 1 ? 1 : ($imgCount === 2 ? 2 : 3)) as $i => $img)
                     @php
-                        // Normalizar URL: puede ser /storage/... o una URL completa
                         $imgUrl = Str::startsWith($img->url, ['http://', 'https://'])
                             ? $img->url
                             : asset(ltrim($img->url, '/'));
@@ -233,6 +244,93 @@
             </div>
             @endif
 
+            {{-- ════ VALORACIÓN ════ --}}
+            <div class="card" id="valoracion-card">
+                <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+                    <h2 class="card-title" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+                        <i data-lucide="star" style="width:1.1rem;height:1.1rem; color:var(--accent);"></i>
+                        Valoración
+                    </h2>
+                    {{-- Media global --}}
+                    <div style="display:inline-flex; align-items:center; gap:0.4rem;" id="global-rating-display">
+                        @php
+                            $filledG  = $mediaVal ? floor($mediaVal) : 0;
+                            $emptyG   = 5 - $filledG;
+                        @endphp
+                        <div style="display:flex; gap:0.15rem;" id="global-stars-row">
+                            @for($i = 0; $i < $filledG; $i++)
+                                <svg width="1rem" height="1rem" viewBox="0 0 24 24" fill="var(--accent)" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            @endfor
+                            @for($i = 0; $i < $emptyG; $i++)
+                                <svg width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            @endfor
+                        </div>
+                        <span style="font-size:0.875rem; font-weight:700; color:var(--accent);" id="global-media-text">
+                            {{ $mediaVal ? number_format($mediaVal, 1) : '—' }}
+                        </span>
+                        <span style="font-size:0.8rem; color:var(--muted-foreground);" id="global-votos-text">
+                            ({{ $totalVotos }} {{ $totalVotos === 1 ? 'voto' : 'votos' }})
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-content">
+                    @auth
+                        @if($esMiSpot)
+                            <p style="font-size:0.875rem; color:var(--muted-foreground); margin:0;">
+                                No puedes valorar tu propio spot.
+                            </p>
+                        @else
+                            <p style="font-size:0.875rem; color:var(--muted-foreground); margin:0 0 0.75rem;" id="rating-hint">
+                                {{ $miVoto
+                                    ? 'Tu valoración: ' . $miVoto . ' estrella' . ($miVoto > 1 ? 's' : '') . '. Haz clic para cambiarla.'
+                                    : 'Haz clic en las estrellas para valorar este spot.' }}
+                            </p>
+
+                            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                                {{-- Estrellas interactivas --}}
+                                <div id="star-selector"
+                                     style="display:flex; gap:0.3rem;"
+                                     data-spot="{{ $spot->id }}"
+                                     data-current="{{ $miVoto ?? 0 }}"
+                                     data-url="{{ route('spots.valorar', $spot) }}"
+                                     data-url-delete="{{ route('spots.valorar.destroy', $spot) }}">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="star-btn"
+                                             data-val="{{ $i }}"
+                                             width="2rem" height="2rem"
+                                             viewBox="0 0 24 24"
+                                             xmlns="http://www.w3.org/2000/svg"
+                                             style="fill:{{ ($miVoto && $i <= $miVoto) ? 'var(--accent)' : 'none' }}; stroke:{{ ($miVoto && $i <= $miVoto) ? 'var(--accent)' : 'var(--border)' }}; stroke-width:1.5;"
+                                             onmouseover="hoverStars({{ $i }})"
+                                             onmouseout="resetStars()"
+                                             onclick="rateSpot({{ $i }})">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    @endfor
+                                </div>
+
+                                <span id="rating-feedback" style="font-size:0.8125rem; color:var(--muted-foreground); min-width:5rem;"></span>
+
+                                @if($miVoto)
+                                <button onclick="removeRating()" id="btn-remove-rating"
+                                    style="font-size:0.75rem; color:var(--muted-foreground); background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;"
+                                    onmouseover="this.style.color='var(--destructive)'"
+                                    onmouseout="this.style.color='var(--muted-foreground)'">
+                                    Quitar mi valoración
+                                </button>
+                                @endif
+                            </div>
+                        @endif
+                    @else
+                        <p style="font-size:0.875rem; color:var(--muted-foreground); margin:0;">
+                            <a href="{{ route('login') }}" style="color:var(--primary); font-weight:500;">Inicia sesión</a> para valorar este spot.
+                        </p>
+                    @endauth
+                </div>
+            </div>
+            {{-- ════ FIN VALORACIÓN ════ --}}
+
             {{-- Comentarios --}}
             <div class="card">
                 <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
@@ -325,6 +423,21 @@
                         </span>
                     </div>
 
+                    {{-- Valoración media en sidebar también --}}
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.625rem 0; border-bottom:1px solid var(--border);">
+                        <span style="font-size:0.875rem; color:var(--muted-foreground); display:flex; align-items:center; gap:0.5rem;">
+                            <i data-lucide="star" style="width:0.875rem;height:0.875rem;"></i>Valoración
+                        </span>
+                        @if($mediaVal)
+                            <span style="font-size:0.875rem; font-weight:700; color:var(--accent);">
+                                ★ {{ number_format($mediaVal, 1) }}
+                                <span style="font-weight:400; color:var(--muted-foreground); font-size:0.75rem;">/5</span>
+                            </span>
+                        @else
+                            <span style="font-size:0.8rem; color:var(--muted-foreground);">Sin votos</span>
+                        @endif
+                    </div>
+
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:0.625rem 0; border-bottom:1px solid var(--border);">
                         <span style="font-size:0.875rem; color:var(--muted-foreground); display:flex; align-items:center; gap:0.5rem;">
                             <i data-lucide="user" style="width:0.875rem;height:0.875rem;"></i>Añadido por
@@ -400,8 +513,7 @@
     // ── Favorito ──
     function toggleFavDetail(btn, spotId) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (!csrfToken) { console.error('CSRF token not found'); return; }
-
+        if (!csrfToken) return;
         fetch(`/spots/${spotId}/fav`, {
             method: 'POST',
             headers: {
@@ -410,10 +522,7 @@
                 'Content-Type': 'application/json',
             }
         })
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.json();
-        })
+        .then(r => r.json())
         .then(data => {
             const icon   = document.getElementById('fav-icon');
             const text   = document.getElementById('fav-text');
@@ -431,14 +540,106 @@
             }
             lucide.createIcons();
         })
-        .catch(err => {
-            console.error('Error favorito:', err);
-            // Mostrar error inline en vez de alert
+        .catch(() => {
             const favBtn = document.getElementById('fav-btn');
             favBtn.style.outline = '2px solid var(--destructive)';
             setTimeout(() => favBtn.style.outline = '', 2000);
         });
     }
+
+    // ── Valoración ──
+    (function() {
+        const selector = document.getElementById('star-selector');
+        if (!selector) return;
+
+        const stars    = selector.querySelectorAll('.star-btn');
+        const feedback = document.getElementById('rating-feedback');
+        const hint     = document.getElementById('rating-hint');
+        const labels   = ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', '¡Excelente!'];
+        let current    = parseInt(selector.dataset.current || 0);
+
+        function paintStars(upTo, color) {
+            stars.forEach((s, i) => {
+                s.style.fill   = i < upTo ? color : 'none';
+                s.style.stroke = i < upTo ? color : 'var(--border)';
+            });
+        }
+
+        function updateGlobalDisplay(media, votos) {
+            const mediaText = document.getElementById('global-media-text');
+            const votosText = document.getElementById('global-votos-text');
+            if (mediaText) mediaText.textContent = media ? parseFloat(media).toFixed(1) : '—';
+            if (votosText) votosText.textContent  = `(${votos} ${votos === 1 ? 'voto' : 'votos'})`;
+            // Actualizar sidebar también
+            const sidebarVal = document.querySelector('#valoracion-card ~ * .star-sidebar');
+            // simple refresh — los valores estáticos se actualizan en siguiente carga
+        }
+
+        window.hoverStars = function(val) {
+            paintStars(val, 'var(--accent)');
+            if (feedback) feedback.textContent = labels[val] || '';
+        };
+
+        window.resetStars = function() {
+            paintStars(current, 'var(--accent)');
+            if (feedback) feedback.textContent = current ? labels[current] : '';
+        };
+
+        window.rateSpot = async function(val) {
+            const url   = selector.dataset.url;
+            const token = document.querySelector('meta[name="csrf-token"]')?.content;
+            try {
+                const res  = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                    body: JSON.stringify({ puntuacion: val }),
+                });
+                const data = await res.json();
+                current = val;
+                selector.dataset.current = val;
+                paintStars(val, 'var(--accent)');
+                if (feedback) { feedback.textContent = '✓ ' + labels[val]; feedback.style.color = 'var(--primary)'; }
+                if (hint) hint.textContent = `Tu valoración: ${val} estrella${val > 1 ? 's' : ''}. Haz clic para cambiarla.`;
+                updateGlobalDisplay(data.media, data.votos);
+
+                // Mostrar botón quitar si no existe
+                if (!document.getElementById('btn-remove-rating')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'btn-remove-rating';
+                    btn.textContent = 'Quitar mi valoración';
+                    btn.style.cssText = 'font-size:0.75rem;color:var(--muted-foreground);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;';
+                    btn.onmouseover = () => btn.style.color = 'var(--destructive)';
+                    btn.onmouseout  = () => btn.style.color = 'var(--muted-foreground)';
+                    btn.onclick     = () => window.removeRating();
+                    selector.parentNode.appendChild(btn);
+                }
+            } catch (e) {
+                if (feedback) { feedback.textContent = 'Error al guardar'; feedback.style.color = 'var(--destructive)'; }
+            }
+        };
+
+        window.removeRating = async function() {
+            const url   = selector.dataset.urlDelete;
+            const token = document.querySelector('meta[name="csrf-token"]')?.content;
+            try {
+                const res  = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                });
+                const data = await res.json();
+                current = 0;
+                selector.dataset.current = 0;
+                paintStars(0, 'var(--accent)');
+                if (feedback) { feedback.textContent = 'Valoración eliminada'; feedback.style.color = 'var(--muted-foreground)'; }
+                if (hint) hint.textContent = 'Haz clic en las estrellas para valorar este spot.';
+                updateGlobalDisplay(data.media, data.votos);
+                document.getElementById('btn-remove-rating')?.remove();
+            } catch (e) {}
+        };
+
+        // Estado inicial
+        resetStars();
+    })();
 
     // ── Mini mapa ──
     @if($spot->latitud && $spot->longitud)
