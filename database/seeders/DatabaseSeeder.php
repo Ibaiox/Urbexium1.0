@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
           $rolMod = Rol::where('nombre', 'moderador')->first();
 
         $mod = User::firstOrCreate(
-            ['email' => 'moderador@urbexium.com'],
+            ['email' => 'moderadorUrbexium@gmail.com'],
             [
                 'rol_id'   => $rolMod->id,
                 'nombre'   => 'Moderador',
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info(
             $mod->wasRecentlyCreated
-                ? ' Moderador creado:  moderador@urbexium.com  /  12345678'
+                ? ' Moderador creado:  moderadorUrbexium@gmail.com  /  12345678'
                 : 'ℹ  Moderador ya existía, no se modificó.'
         );
 
