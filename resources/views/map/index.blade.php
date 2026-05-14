@@ -66,12 +66,12 @@
         overflow: hidden;
     }
 
-    .sidebar-top {
+    .map-sidebar-top {
         padding: 1rem 1rem 0;
         flex-shrink: 0;
     }
 
-    .sidebar-label {
+    .map-sidebar-label {
         font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -180,7 +180,7 @@
     }
     .s-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-    .sidebar-count {
+    .map-sidebar-count {
         padding: 0.45rem 1rem;
         font-size: 0.7rem; color: var(--muted-foreground);
         border-top: 1px solid var(--border); flex-shrink: 0;
@@ -315,8 +315,8 @@
 
         {{-- Sidebar --}}
         <div class="map-sidebar">
-            <div class="sidebar-top">
-                <p class="sidebar-label">Filtros</p>
+            <div class="map-sidebar-top">
+                <p class="map-sidebar-label">Filtros</p>
 
                 <div class="s-wrap">
                     <span class="si">
@@ -354,7 +354,7 @@
                 </div>
 
                 <div class="s-divider"></div>
-                <p class="sidebar-label" style="margin-top:.75rem;">Spots</p>
+                <p class="map-sidebar-label" style="margin-top:.75rem;">Spots</p>
             </div>
 
             <div class="spot-list" id="spotList">
@@ -364,7 +364,7 @@
                 </div>
             </div>
 
-            <div class="sidebar-count" id="spotCount"></div>
+            <div class="map-sidebar-count" id="spotCount"></div>
         </div>
 
         {{-- Área mapa --}}
