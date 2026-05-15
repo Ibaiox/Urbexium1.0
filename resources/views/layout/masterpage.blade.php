@@ -386,13 +386,14 @@
 
         .logo-light {
             display: block;
-            filter: invert(1);
-            mix-blend-mode: multiply;
+            filter: none;
+            mix-blend-mode: normal;
         }
 
         .logo-dark {
             display: none;
-            mix-blend-mode: screen;
+            filter: none;
+            mix-blend-mode: normal;
         }
 
         .dark .logo-light {
@@ -692,13 +693,13 @@
 
             <a href="{{ route('dashboard') }}" class="navbar-logo-link" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none;">
                 {{-- Logo claro para modo claro --}}
-                <img src="{{ asset('images/logo-dark.jpg') }}"
+                <img src="{{ asset('images/logo-dark.png') }}"
                      class="logo-img logo-light"
                      alt="Urbexium"
                      id="logo-img-light">
 
                 {{-- Logo blanco para modo oscuro --}}
-                <img src="{{ asset('images/logo-white.jpg') }}"
+                <img src="{{ asset('images/logo-white.png') }}"
                      class="logo-img logo-dark"
                      alt="Urbexium"
                      id="logo-img-dark">
