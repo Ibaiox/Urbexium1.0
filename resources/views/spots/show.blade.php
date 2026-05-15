@@ -13,6 +13,13 @@
     .img-gallery img  { width:100%; height:100%; object-fit:cover; border-radius:calc(var(--radius) - 2px); cursor:pointer; transition:opacity 150ms; }
     .img-gallery img:hover { opacity:0.88; }
 
+    @media (max-width: 767px) {
+        .spots-show-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .img-gallery.many { grid-template-columns: 2fr 1fr !important; grid-template-rows: auto auto !important; }
+    }
+
     /* Lightbox */
     #lightbox {
         display:none; position:fixed; inset:0; z-index:200;
@@ -64,7 +71,8 @@
         <span style="color:var(--foreground); font-weight:500;">{{ $spot->nombre }}</span>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;">
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) clamp(280px, 30vw, 340px); gap:1.5rem; align-items:start;"
+         class="spots-show-grid">
 
         {{-- ════ Columna principal ════ --}}
         <div style="display:flex; flex-direction:column; gap:1.25rem;">

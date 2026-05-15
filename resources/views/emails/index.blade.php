@@ -4,7 +4,7 @@
 @section('title', 'Contacto')
 
 @section('content')
-<div style="max-width:700px; margin:0 auto;">
+<div style="max-width:700px; margin:0 auto; width:100%;">
 
     {{-- Header --}}
     <div style="margin-bottom:2rem;">
@@ -16,7 +16,7 @@
         </p>
     </div>
 
-    <div style="display:grid; gap:1.5rem; grid-template-columns:1fr 1.7fr; align-items:start;">
+    <div class="contacto-grid" style="display:grid; gap:1.5rem; grid-template-columns:minmax(0,1fr); align-items:start;">
 
         {{-- Info lateral --}}
         <div style="display:flex; flex-direction:column; gap:1rem;">
@@ -74,7 +74,7 @@
                 <form method="POST" action="{{ route('contacto.send') }}" style="display:flex; flex-direction:column; gap:1rem;">
                     @csrf
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem;">
+                    <div class="contacto-name-email" style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem;">
                         <div>
                             <label style="font-size:0.8125rem; font-weight:500; display:block; margin-bottom:0.375rem;">
                                 Nombre <span style="color:var(--destructive);">*</span>
@@ -132,4 +132,15 @@
 
     </div>
 </div>
+
+@push('styles')
+<style>
+@media (min-width: 640px) {
+    .contacto-grid { grid-template-columns: 1fr 1.7fr !important; }
+}
+@media (max-width: 639px) {
+    .contacto-name-email { grid-template-columns: 1fr !important; }
+}
+</style>
+@endpush
 @endsection

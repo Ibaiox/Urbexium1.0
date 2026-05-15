@@ -64,6 +64,8 @@
         background: var(--card);
         border-right: 1px solid var(--border);
         overflow: hidden;
+        position: relative;
+        z-index: 500;
     }
 
     .map-sidebar-top {
@@ -194,6 +196,8 @@
     /* ── Área del mapa ───────────────────────────────────────── */
     .map-area {
         flex: 1; position: relative; min-width: 0;
+        isolation: isolate; /* CRÍTICO: crea nuevo stacking context, aísla z-index de Leaflet */
+        z-index: 0;
     }
 
     /* CRÍTICO: posición absoluta para que Leaflet calcule bien */
@@ -259,6 +263,63 @@
         display: flex !important; align-items: center !important; justify-content: center !important;
     }
 
+    /* ── RESPONSIVE MÓVIL ───────────────────────────────────── */
+    @media (max-width: 767px) {
+        .map-page {
+            height: auto;
+            overflow: visible;
+        }
+        .map-shell {
+            flex-direction: column;
+        }
+        .map-sidebar {
+            width: 100% !important;
+            max-height: 0;
+            overflow: hidden;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+            transition: max-height 350ms ease;
+            position: relative;
+            z-index: 1; /* el sidebar del layout global (z-index:200) está en fixed, no interfiere */
+        }
+        .map-sidebar.mobile-open {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .map-area {
+            min-height: 65vh;
+            position: relative;
+        }
+        #leaflet-map {
+            position: relative !important;
+            inset: auto !important;
+            height: 65vh !important;
+        }
+        .map-toggle-btn {
+            display: flex !important;
+        }
+        .map-legend {
+            bottom: 0.5rem;
+            right: 0.5rem;
+        }
+    }
+
+    .map-toggle-btn {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.625rem 1rem;
+        background: var(--card);
+        border: none;
+        border-bottom: 1px solid var(--border);
+        color: var(--foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
     .pp-img  { width: 100%; height: 105px; object-fit: cover; display: block; }
     .pp-nimg {
         width: 100%; height: 55px; background: var(--secondary);
@@ -313,8 +374,15 @@
     {{-- Shell --}}
     <div class="map-shell">
 
+        {{-- Botón toggle filtros en móvil --}}
+        <button class="map-toggle-btn" onclick="toggleMapSidebar()" id="map-sidebar-toggle">
+            <i data-lucide="sliders-horizontal" style="width:1rem;height:1rem;"></i>
+            <span id="map-toggle-label">Ver filtros y spots</span>
+            <i data-lucide="chevron-down" style="width:0.875rem;height:0.875rem; margin-left:auto;" id="map-toggle-icon"></i>
+        </button>
+
         {{-- Sidebar --}}
-        <div class="map-sidebar">
+        <div class="map-sidebar" id="map-sidebar">
             <div class="map-sidebar-top">
                 <p class="map-sidebar-label">Filtros</p>
 
@@ -577,6 +645,18 @@
     /* ── Init ─────────────────────────────────────────────── */
     initMap();
     load();
+
+    // ── Toggle sidebar móvil ──
+    window.toggleMapSidebar = function() {
+        const sidebar = document.getElementById('map-sidebar');
+        const icon    = document.getElementById('map-toggle-icon');
+        const label   = document.getElementById('map-toggle-label');
+        const isOpen  = sidebar.classList.contains('mobile-open');
+        sidebar.classList.toggle('mobile-open', !isOpen);
+        if (icon) icon.setAttribute('data-lucide', isOpen ? 'chevron-down' : 'chevron-up');
+        if (label) label.textContent = isOpen ? 'Ver filtros y spots' : 'Ocultar filtros';
+        lucide.createIcons();
+    };
 })();
 </script>
 @endpush

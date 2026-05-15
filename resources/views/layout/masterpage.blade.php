@@ -86,6 +86,9 @@
             background-color: var(--background);
             color: var(--foreground);
             margin: 0;
+            overflow-x: hidden;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         [x-cloak] {
@@ -102,6 +105,7 @@
             height: 4rem;
             border-bottom: 1px solid var(--border);
             background-color: var(--background);
+            /* CRÍTICO: sin overflow:hidden para que los dropdowns sean visibles */
         }
 
         .navbar-inner {
@@ -110,6 +114,7 @@
             justify-content: space-between;
             height: 100%;
             padding: 0 1rem;
+            overflow: visible;
         }
 
         /* ─── SIDEBAR ─── */
@@ -117,7 +122,7 @@
             position: fixed;
             left: 0;
             top: 4rem;
-            z-index: 40;
+            z-index: 200;  /* Por encima de Leaflet (z-index 400 tiles, pero el sidebar del mapa es internal) */
             height: calc(100vh - 4rem);
             border-right: 1px solid var(--sidebar-border);
             background-color: var(--sidebar);
@@ -133,7 +138,7 @@
         .sidebar-overlay {
             position: fixed;
             inset: 0;
-            z-index: 39;
+            z-index: 199;
             background-color: rgba(0, 0, 0, 0.55);
         }
 
@@ -417,15 +422,13 @@
         }
 
         .dropdown-menu {
-            position: absolute;
-            right: 0;
-            top: calc(100% + 0.5rem);
+            position: fixed; /* fixed en lugar de absolute para salir de cualquier contenedor */
             min-width: 14rem;
             background-color: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
             overflow: hidden;
         }
 
@@ -515,8 +518,151 @@
                 display: none !important;
             }
         }
-    </style>
 
+        /* ─── NAVBAR RESPONSIVE ─── */
+        /* Buscador central: ocultar en móvil pequeño, mostrar como fila separada */
+        .navbar-search-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 18rem;
+        }
+
+        .navbar-mobile-search {
+            display: none;
+        }
+
+        .logo-wordmark {
+            display: none !important; /* oculto en móvil por defecto, visible en desktop */
+        }
+
+        /* En desktop: mostrar wordmark, ocultar botón izquierdo de darkmode */
+        @media (min-width: 768px) {
+            .logo-wordmark {
+                display: inline !important;
+            }
+            .darkmode-mobile-left {
+                display: none !important;
+            }
+            .navbar-logo-link {
+                position: static !important;
+                transform: none !important;
+            }
+        }
+
+        /* En móvil: ocultar botón derecho de darkmode, centrar logo */
+        @media (max-width: 767px) {
+            .darkmode-desktop-right {
+                display: none !important;
+            }
+            .navbar-logo-link {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            #username-text,
+            #user-chevron {
+                display: none !important;
+            }
+            .navbar-user-btn {
+                padding: 0.25rem !important;
+            }
+            .navbar-search-center {
+                display: none !important;
+            }
+        }
+
+        /* Búsqueda en fila separada en móvil pequeño */
+        @media (max-width: 639px) {
+            .navbar {
+                flex-wrap: wrap;
+                height: auto;
+            }
+            .navbar-inner {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 0.625rem 1rem;
+                gap: 0.25rem;
+            }
+            .navbar-mobile-search {
+                display: flex;
+                width: 100%;
+                padding: 0 0 0.5rem;
+            }
+            .navbar-mobile-search input {
+                flex: 1;
+            }
+            .main-content {
+                margin-top: 6.5rem !important;
+            }
+            .sidebar {
+                top: 6.5rem !important;
+                height: calc(100vh - 6.5rem) !important;
+            }
+        }
+
+        @media (min-width: 640px) and (max-width: 900px) {
+            .navbar-search-center {
+                width: 12rem;
+            }
+            #username-text {
+                display: none !important;
+            }
+        }
+
+        /* Botones auth en móvil */
+        @media (max-width: 480px) {
+            .navbar-auth-register span {
+                display: none;
+            }
+            .navbar-auth-login {
+                display: none;
+            }
+        }
+
+        /* Centrar contenido de páginas */
+        .page-center {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ─── GLOBAL MOBILE UTILS ─── */
+        @media (max-width: 639px) {
+            .main-content {
+                padding: 1rem 0.875rem;
+            }
+            /* Tablas overflow en móvil */
+            .card-content table,
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Imágenes galería responsive */
+        @media (max-width: 480px) {
+            .img-gallery.two {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Paginación compacta */
+        @media (max-width: 480px) {
+            .pagination-wrap {
+                gap: 0.25rem;
+            }
+            .pagination-wrap span,
+            .pagination-wrap a {
+                min-width: 2rem;
+                height: 2rem;
+                font-size: 0.8rem;
+                padding: 0 0.375rem;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -526,8 +672,8 @@
 <header class="navbar">
     <div class="navbar-inner">
 
-        {{-- Left: hamburger móvil + logo --}}
-        <div style="display:flex; align-items:center; gap:1rem;">
+        {{-- Left: hamburger móvil + theme toggle (móvil) + logo --}}
+        <div style="display:flex; align-items:center; gap:0.25rem;">
             <button class="btn btn-ghost btn-icon"
                 id="mobile-menu-btn"
                 style="display:none;"
@@ -536,7 +682,15 @@
                 <i data-lucide="menu" style="width:1.25rem;height:1.25rem;"></i>
             </button>
 
-            <a href="{{ route('dashboard') }}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none;">
+            {{-- Dark mode toggle: en móvil va aquí (izquierda), en desktop se oculta y aparece en la derecha --}}
+            <button class="btn btn-ghost btn-icon darkmode-mobile-left"
+                onclick="toggleDarkMode()"
+                title="Cambiar tema">
+                <i data-lucide="sun" id="icon-sun-left" style="width:1.25rem;height:1.25rem; display:none;"></i>
+                <i data-lucide="moon" id="icon-moon-left" style="width:1.25rem;height:1.25rem;"></i>
+            </button>
+
+            <a href="{{ route('dashboard') }}" class="navbar-logo-link" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none;">
                 {{-- Logo claro para modo claro --}}
                 <img src="{{ asset('images/logo-dark.jpg') }}"
                      class="logo-img logo-light"
@@ -549,12 +703,12 @@
                      alt="Urbexium"
                      id="logo-img-dark">
 
-                <span style="font-size:1.1rem; font-weight:800; letter-spacing:-0.04em; color:var(--foreground);" id="logo-text">Urbexium</span>
+                <span style="font-size:1.1rem; font-weight:800; letter-spacing:-0.04em; color:var(--foreground);" id="logo-text" class="logo-wordmark">Urbexium</span>
             </a>
         </div>
 
-        {{-- Center: search --}}
-        <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:18rem;">
+        {{-- Center: search (desktop) --}}
+        <div class="navbar-search-center">
             <div style="position:relative;">
                 <i data-lucide="search"
                     style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); width:1rem; height:1rem; color:var(--muted-foreground);"></i>
@@ -569,8 +723,8 @@
         {{-- Right: acciones + usuario --}}
         <div style="display:flex; align-items:center; gap:0.375rem;">
 
-            {{-- Dark mode toggle --}}
-            <button class="btn btn-ghost btn-icon"
+            {{-- Dark mode toggle: solo visible en desktop --}}
+            <button class="btn btn-ghost btn-icon darkmode-desktop-right"
                 onclick="toggleDarkMode()"
                 id="darkmode-btn"
                 title="Cambiar tema">
@@ -580,12 +734,12 @@
 
             @guest
             <div style="display:flex; align-items:center; gap:0.5rem;">
-                <a href="{{ route('login') }}" class="btn btn-ghost" style="font-size:0.875rem; padding:0.4rem 0.875rem;">
+                <a href="{{ route('login') }}" class="btn btn-ghost navbar-auth-login" style="font-size:0.875rem; padding:0.4rem 0.875rem;">
                     Iniciar sesión
                 </a>
-                <a href="{{ route('register') }}" class="btn btn-primary" style="font-size:0.875rem; padding:0.4rem 0.875rem;">
+                <a href="{{ route('register') }}" class="btn btn-primary navbar-auth-register" style="font-size:0.875rem; padding:0.4rem 0.875rem;">
                     <i data-lucide="user-plus" style="width:0.9rem;height:0.9rem;"></i>
-                    Registrarse
+                    <span>Registrarse</span>
                 </a>
             </div>
             @endguest
@@ -597,14 +751,14 @@
                 $notifNoLeidas = $notifs->where('leida', false)->count();
             @endphp
             <div style="position:relative;" id="notif-wrapper">
-                <button class="btn btn-ghost btn-icon" onclick="toggleDropdown('notif-menu')" style="position:relative;">
+                <button class="btn btn-ghost btn-icon" onclick="toggleDropdown('notif-menu', this)" style="position:relative;">
                     <i data-lucide="bell" style="width:1.25rem;height:1.25rem;"></i>
                     @if($notifNoLeidas > 0)
                     <span style="position:absolute; top:0.25rem; right:0.25rem; width:0.5rem; height:0.5rem;
                         background:var(--destructive); border-radius:50%; display:block;"></span>
                     @endif
                 </button>
-                <div id="notif-menu" class="dropdown-menu" style="display:none; min-width:22rem; max-height:28rem; overflow-y:auto;">
+                <div id="notif-menu" class="dropdown-menu" style="display:none; min-width:min(22rem, calc(100vw - 2rem)); max-height:28rem; overflow-y:auto;">
                     <div style="padding:0.875rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
                         <p style="font-weight:600; font-size:0.9375rem; margin:0;">
                             Notificaciones
@@ -680,8 +834,8 @@
 
             {{-- Usuario --}}
             <div style="position:relative;" id="user-wrapper">
-                <button class="btn btn-ghost" style="padding:0.25rem 0.75rem 0.25rem 0.375rem; gap:0.5rem;"
-                    onclick="toggleDropdown('user-menu')">
+                <button class="btn btn-ghost navbar-user-btn" style="padding:0.25rem 0.75rem 0.25rem 0.375rem; gap:0.5rem;"
+                    onclick="toggleDropdown('user-menu', this)">
                     <div class="avatar" style="width:1.875rem; height:1.875rem; font-size:0.8125rem; color:var(--primary-foreground); background:var(--primary);">
                         @if(Auth::user()->avatar)
                             <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->nombre }}" style="width:100%;height:100%;object-fit:cover;" />
@@ -692,7 +846,7 @@
                     <span style="font-size:0.875rem; font-weight:500;" id="username-text">
                         {{ Auth::user()->nombre ?? '' }}
                     </span>
-                    <i data-lucide="chevron-down" style="width:0.875rem;height:0.875rem; color:var(--muted-foreground);"></i>
+                    <i data-lucide="chevron-down" id="user-chevron" style="width:0.875rem;height:0.875rem; color:var(--muted-foreground);"></i>
                 </button>
                 <div id="user-menu" class="dropdown-menu" style="display:none;">
                     <div style="padding:0.875rem 1rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.75rem;">
@@ -718,6 +872,17 @@
             </div>
             @endauth
 
+        </div>
+    </div>
+    {{-- Mobile search row (visible solo en <640px) --}}
+    <div class="navbar-mobile-search">
+        <div style="position:relative; flex:1;">
+            <i data-lucide="search"
+                style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); width:1rem; height:1rem; color:var(--muted-foreground);"></i>
+            <input type="search" placeholder="Buscar spots..."
+                class="input"
+                style="padding-left:2.5rem; height:2.25rem; font-size:0.8125rem; width:100%;"
+                onkeydown="if(event.key==='Enter' && this.value) window.location='{{ route('spots.index') }}?search='+encodeURIComponent(this.value)" />
         </div>
     </div>
 </header>
@@ -921,8 +1086,16 @@
 
     function applyDarkMode() {
         document.documentElement.classList.toggle('dark', dark);
-        document.getElementById('icon-sun').style.display = dark ? 'block' : 'none';
-        document.getElementById('icon-moon').style.display = dark ? 'none' : 'block';
+        // Botón derecho (desktop)
+        const sunR = document.getElementById('icon-sun');
+        const moonR = document.getElementById('icon-moon');
+        if (sunR) sunR.style.display = dark ? 'block' : 'none';
+        if (moonR) moonR.style.display = dark ? 'none' : 'block';
+        // Botón izquierdo (móvil)
+        const sunL = document.getElementById('icon-sun-left');
+        const moonL = document.getElementById('icon-moon-left');
+        if (sunL) sunL.style.display = dark ? 'block' : 'none';
+        if (moonL) moonL.style.display = dark ? 'none' : 'block';
     }
 
     function toggleDarkMode() {
@@ -933,7 +1106,7 @@
 
     applyDarkMode();
 
-    function toggleDropdown(id) {
+    function toggleDropdown(id, triggerEl) {
         const menu = document.getElementById(id);
         const isOpen = menu.style.display === 'block';
 
@@ -943,6 +1116,17 @@
 
         if (!isOpen) {
             menu.style.display = 'block';
+
+            // Posicionar el menú fixed bajo el botón disparador
+            if (triggerEl) {
+                const rect = triggerEl.getBoundingClientRect();
+                const menuWidth = menu.offsetWidth || 224; // 14rem fallback
+                let left = rect.right - menuWidth;
+                if (left < 8) left = 8;
+                menu.style.top = (rect.bottom + 8) + 'px';
+                menu.style.left = left + 'px';
+                menu.style.right = 'auto';
+            }
         }
     }
 

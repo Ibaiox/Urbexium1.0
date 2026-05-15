@@ -26,7 +26,7 @@
 @endpush
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px;">
+<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- Header --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem;">

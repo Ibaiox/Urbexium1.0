@@ -9,8 +9,8 @@
     .admin-title  { font-size:1.5rem; font-weight:700; letter-spacing:-0.03em; margin:0; display:flex; align-items:center; gap:0.6rem; }
     .filter-bar   { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1.25rem; }
     .filter-bar select { height:2.25rem; padding:0 0.75rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); color:var(--foreground); font-size:0.875rem; }
-    .table-wrap   { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-    table         { width:100%; border-collapse:collapse; font-size:0.875rem; }
+    .table-wrap   { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table         { width:100%; border-collapse:collapse; font-size:0.875rem; min-width:600px; }
     thead th      { padding:0.75rem 1rem; text-align:left; font-weight:600; font-size:0.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-foreground); border-bottom:1px solid var(--border); background:color-mix(in oklch,var(--card) 95%,var(--foreground)); }
     tbody tr      { border-bottom:1px solid var(--border); transition:background 120ms; }
     tbody tr:last-child { border-bottom:none; }

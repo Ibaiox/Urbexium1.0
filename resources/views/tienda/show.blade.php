@@ -4,7 +4,7 @@
 @section('title', $producto->nombre)
 
 @section('content')
-<div style="max-width:1100px; display:flex; flex-direction:column; gap:2rem;">
+<div style="max-width:1100px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:2rem;">
 
     {{-- Breadcrumb --}}
     <nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.8125rem; color:var(--muted-foreground);">
@@ -17,7 +17,7 @@
     </nav>
 
     {{-- Main grid --}}
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;">
+    <div class="product-main-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;">
 
         {{-- Imagen --}}
         <div style="
@@ -124,6 +124,7 @@
             @endif
 
             {{-- Admin acciones --}}
+            @auth
             @if(Auth::user()->isAdmin())
             <div style="display:flex; gap:0.75rem; padding-top:0.5rem; border-top:1px solid var(--border);">
                 <a href="{{ route('tienda.edit', $producto) }}" class="btn btn-outline" style="height:2.25rem; font-size:0.8125rem;">
@@ -139,6 +140,7 @@
                 </form>
             </div>
             @endif
+            @endauth
         </div>
     </div>
 
@@ -217,6 +219,11 @@ function showToast(msg, type = 'success') {
 @media (max-width: 700px) {
     div[style*="grid-template-columns:1fr 1fr"] {
         grid-template-columns: 1fr !important;
+    }
+    /* Main product grid stacks on mobile */
+    .product-main-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
     }
 }
 </style>

@@ -224,7 +224,7 @@
     .tab-content.active { display: block; }
 </style>
 
-<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px;">
+<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- ── Header ── --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
@@ -854,7 +854,7 @@
         <div class="card-content">
             <form method="POST" action="{{ route('admin.notificaciones.send') }}" class="notif-form">
                 @csrf
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; align-items:end;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:1rem; align-items:end;">
                     <div>
                         <label>Destinatarios</label>
                         <select name="destinatario">

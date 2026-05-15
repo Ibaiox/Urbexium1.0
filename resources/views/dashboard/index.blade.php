@@ -4,7 +4,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px;">
+<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- Header --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
@@ -60,7 +60,7 @@
 
     {{-- Fila 1: Spots recientes + Actividad (solo auth) --}}
     @auth
-    <div style="display:grid; gap:1rem; grid-template-columns:1fr 1fr;">
+    <div style="display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(min(100%, 400px), 1fr));">
 
         {{-- Vistos recientemente --}}
         <div class="card">
@@ -170,7 +170,7 @@
     @endauth
 
     {{-- Fila 2: Populares + Favoritos + Explorados --}}
-    <div style="display:grid; gap:1rem; grid-template-columns:repeat({{ Auth::check() ? 3 : 1 }}, 1fr);">
+    <div style="display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ Auth::check() ? '280px' : '100%' }}), 1fr));">
 
         {{-- Populares en la plataforma --}}
         <div class="card">

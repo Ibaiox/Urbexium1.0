@@ -10,7 +10,26 @@ function paginacionEstilizada($paginator) {
 @endphp
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px;">
+<style>
+@media (max-width: 480px) {
+    /* Tabs: ocultar texto, solo iconos */
+    .tab-label-text { display: none; }
+    /* Tab buttons más compactos */
+    #tab-btn-spots, #tab-btn-favoritos, #tab-btn-pedidos,
+    #tab-btn-notificaciones, #tab-btn-configuracion {
+        padding: 0.5rem !important;
+        flex: 1;
+        justify-content: center;
+    }
+}
+@media (max-width: 639px) {
+    /* Stats del perfil hero en 2 columnas */
+    .perfil-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+</style>
+<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- Flash --}}
     @if(session('success'))
@@ -142,7 +161,7 @@ function paginacionEstilizada($paginator) {
             style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border-radius:calc(var(--radius) - 4px);border:none;cursor:pointer;font-size:0.875rem;font-weight:500;transition:all 150ms;white-space:nowrap;background:transparent;color:var(--muted-foreground);"
         >
             <i data-lucide="{{ $tab['icon'] }}" style="width:0.875rem;height:0.875rem;"></i>
-            {{ $tab['label'] }}
+            <span class="tab-label-text">{{ $tab['label'] }}</span>
             @if($tab['id'] === 'notificaciones' && isset($notificacionesCount) && $notificacionesCount > 0)
             <span style="min-width:1.25rem;height:1.25rem;padding:0 0.25rem;border-radius:9999px;background:var(--destructive);color:#fff;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ $notificacionesCount }}</span>
             @endif
@@ -385,7 +404,7 @@ function paginacionEstilizada($paginator) {
 
     {{-- ===== TAB: CONFIGURACIÓN ===== --}}
     <div id="tab-configuracion" class="tab-content" style="display:none;">
-        <div style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit, minmax(22rem, 1fr));">
+        <div style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit, minmax(min(100%, 22rem), 1fr));">
 
             {{-- Datos personales --}}
             <div class="card">
@@ -509,7 +528,7 @@ function paginacionEstilizada($paginator) {
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);font-size:0.8125rem;font-weight:500;cursor:pointer;">
+                            <button type="submit" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--secondary);color:var(--foreground);font-size:0.8125rem;font-weight:500;cursor:pointer;font-family:inherit;">
                                 <i data-lucide="log-out" style="width:0.875rem;height:0.875rem;"></i>
                                 Cerrar sesión
                             </button>

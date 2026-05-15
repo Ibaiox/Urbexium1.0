@@ -4,7 +4,7 @@
 @section('title', 'Comunidades')
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:2rem; max-width:1400px;">
+<div style="display:flex; flex-direction:column; gap:2rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- Header --}}
     <div style="display:flex; flex-direction:column; gap:0.5rem;">

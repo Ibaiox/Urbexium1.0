@@ -4,7 +4,7 @@
 @section('title', 'Tienda')
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px;">
+<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto; width:100%;">
 
     {{-- Header --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
@@ -223,9 +223,12 @@
             {{-- Contenido --}}
             <div style="display:flex; flex-direction:column; gap:0.75rem; padding:1rem; flex:1;">
                 <div style="flex:1;">
-                    <h3 style="font-weight:600; font-size:0.9375rem; margin:0 0 0.375rem; line-height:1.3;">
+                    <a href="{{ route('tienda.show', $producto) }}" style="text-decoration:none; color:inherit;">
+                    <h3 style="font-weight:600; font-size:0.9375rem; margin:0 0 0.375rem; line-height:1.3; transition:color 150ms;"
+                        onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='inherit'">
                         {{ $producto->nombre }}
                     </h3>
+                    </a>
                     <p style="font-size:0.8125rem; color:var(--muted-foreground); margin:0; line-height:1.5;
                         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
                         {{ $producto->descripcion }}
@@ -262,6 +265,14 @@
                     Solo quedan {{ $producto->stock }} unidades
                 </p>
                 @endif
+
+                <a href="{{ route('tienda.show', $producto) }}"
+                    style="font-size:0.8125rem; color:var(--muted-foreground); text-decoration:none;
+                    display:flex; align-items:center; gap:0.25rem; transition:color 150ms;"
+                    onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--muted-foreground)'">
+                    <i data-lucide="eye" style="width:0.875rem; height:0.875rem;"></i>
+                    Ver detalles
+                </a>
             </div>
         </div>
         @empty
@@ -439,8 +450,9 @@
         <div style="display:flex; gap:0.75rem;">
             <button onclick="closeCheckoutModal()" style="
                 flex:1; height:2.5rem; border-radius:var(--radius);
-                border:1px solid var(--border); background:transparent;
-                font-size:0.875rem; cursor:pointer;
+                border:1px solid var(--border); background:var(--secondary);
+                color:var(--foreground);
+                font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit;
             ">Cancelar</button>
             <button onclick="confirmCheckout()" class="btn btn-primary" style="flex:1; height:2.5rem; justify-content:center;">
                 Confirmar
@@ -476,8 +488,9 @@
         <div style="display:flex; gap:0.75rem;">
             <button onclick="closeDeleteModal()" style="
                 flex:1; height:2.5rem; border-radius:var(--radius);
-                border:1px solid var(--border); background:transparent;
-                font-size:0.875rem; cursor:pointer;
+                border:1px solid var(--border); background:var(--secondary);
+                color:var(--foreground);
+                font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit;
             ">Cancelar</button>
             <form id="delete-form" method="POST" style="flex:1; margin:0;">
                 @csrf @method('DELETE')

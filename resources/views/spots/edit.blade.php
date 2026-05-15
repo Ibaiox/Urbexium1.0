@@ -102,7 +102,7 @@
                     <textarea name="descripcion" class="input" rows="4">{{ old('descripcion', $spot->descripcion) }}</textarea>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:1rem;">
                     <div>
                         <label style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:0.375rem;">Ciudad *</label>
                         <select name="ciudad_id" class="input" required>

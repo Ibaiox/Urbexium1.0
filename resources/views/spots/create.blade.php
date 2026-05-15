@@ -97,7 +97,7 @@
                         placeholder="Describe el lugar, su historia, acceso, estado actual...">{{ old('descripcion') }}</textarea>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:1rem;">
                     <div>
                         <label style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:0.375rem;">
                             Ciudad <span style="color:var(--destructive);">*</span>

@@ -69,12 +69,16 @@ class AdminController extends Controller
         // ── Datos para gráficas Chart.js ──────────────────────────────────
 
         // 1. Registros de usuarios por mes (últimos 12 meses)
-        $registrosPorMes = User::selectRaw("strftime('%m', created_at) as mes, COUNT(*) as total")
+        $registrosPorMes = User::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as mes_key, COUNT(*) as total")
             ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
-            ->groupByRaw("strftime('%Y-%m', created_at)")
-            ->orderByRaw("strftime('%Y-%m', created_at)")
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m')")
             ->get()
-            ->map(fn($r) => ['mes' => (int)$r->mes, 'total' => $r->total]);
+            ->map(fn($r) => [
+                'mes_key' => $r->mes_key,                      // '2025-03'
+                'mes'     => (int) substr($r->mes_key, 5, 2),  // 3
+                'total'   => $r->total,
+            ]);
 
         // Build full 12-month labels (fills gaps with 0)
         $mesesLabels = [];
@@ -82,18 +86,18 @@ class AdminController extends Controller
         for ($i = 11; $i >= 0; $i--) {
             $mes = now()->subMonths($i);
             $mesesLabels[] = $mes->locale('es')->isoFormat('MMM YY');
-            $mesNum = (int) $mes->format('m');
-            $found  = $registrosPorMes->firstWhere('mes', $mesNum);
-            $mesesData[] = $found ? $found->total : 0;
+            $mesKey = $mes->format('Y-m');
+            $found  = $registrosPorMes->firstWhere('mes_key', $mesKey);
+            $mesesData[] = $found ? $found['total'] : 0;
         }
 
         // 2. Spots aprobados vs rechazados (por mes, últimos 6 meses)
-        $spotsAprobados  = Localizacion::selectRaw("strftime('%m', created_at) as mes, COUNT(*) as total")
+        $spotsAprobados  = Localizacion::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as mes_key, COUNT(*) as total")
             ->where('verification_status', 'verificado')
             ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->groupByRaw("strftime('%Y-%m', created_at)")
-            ->orderByRaw("strftime('%Y-%m', created_at)")
-            ->pluck('total', 'mes')->toArray();
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+            ->pluck('total', 'mes_key')->toArray();
 
         // Rechazados = los que fueron eliminados con estado 'rechazado' (aproximación: spots deleted con notificacion aviso)
         // Como los rechazados se borran, usamos soft-deletes si existen o bien contamos los pendientes que quedaron
@@ -103,8 +107,8 @@ class AdminController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $mes = now()->subMonths($i);
             $spotsMeses[] = $mes->locale('es')->isoFormat('MMM YY');
-            $mesNum = (int) $mes->format('m');
-            $spotsAprobData[] = $spotsAprobados[$mesNum] ?? 0;
+            $mesKey = $mes->format('Y-m');
+            $spotsAprobData[] = $spotsAprobados[$mesKey] ?? 0;
         }
 
         // 3. Pedidos por estado
