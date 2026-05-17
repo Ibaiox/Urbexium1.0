@@ -937,7 +937,7 @@
                 <a href="{{ route('legal.privacidad') }}"
                     class="nav-item {{ request()->routeIs('legal.privacidad') ? 'active' : '' }}"
                     title="Privacidad">
-                    <i data-lucide="shield" class="nav-item-icon"></i>
+                    <i data-lucide="lock" class="nav-item-icon"></i>
                     <span class="nav-item-label sidebar-label" style="font-size:0.8125rem;">Privacidad</span>
                 </a>
                 <a href="{{ route('legal.cookies') }}"

@@ -18,17 +18,31 @@ class DatabaseSeeder extends Seeder
             ProductoSeeder::class,
         ]);
 
-          $rolMod = Rol::where('nombre', 'moderador')->first();
+      // Moderador
+$rolMod = Rol::where('nombre', 'moderador')->first();
 
-        $mod = User::firstOrCreate(
-            ['email' => 'moderadorUrbexium@gmail.com'],
-            [
-                'rol_id'   => $rolMod->id,
-                'nombre'   => 'Moderador',
-                'password' => Hash::make('12345678'),
-                'baneado'  => false,
-            ]
-        );
+$mod = User::firstOrCreate(
+    ['email' => 'moderadorUrbexium@gmail.com'],
+    [
+        'rol_id'   => $rolMod->id,
+        'nombre'   => 'Moderador',
+        'password' => Hash::make('12345678'),
+        'baneado'  => false,
+    ]
+);
+
+// Administrador
+$rolAdmin = Rol::where('nombre', 'admin')->first();
+
+$admin = User::firstOrCreate(
+    ['email' => 'adminUrbexium@gmail.com'],
+    [
+        'rol_id'   => $rolAdmin->id,
+        'nombre'   => 'Administrador',
+        'password' => Hash::make('12345678'),
+        'baneado'  => false,
+    ]
+);
 
         $this->command->info(
             $mod->wasRecentlyCreated

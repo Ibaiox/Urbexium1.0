@@ -59,7 +59,7 @@ class MapController extends Controller
                 'verificacion' => $spot->verification_status,
                 'ciudad'       => $spot->ciudad?->nombre,
                 'pais'         => $spot->ciudad?->pais?->nombre,
-                'imagen'       => $spot->imagenes->first()?->url,
+                'imagen'       => $spot->imagenPrincipal,
                 'autor'        => $spot->user?->nombre,
                 'url'          => route('spots.show', $spot->id),
             ];

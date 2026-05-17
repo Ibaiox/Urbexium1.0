@@ -87,7 +87,12 @@ class Localizacion extends Model
 
     public function getImagenPrincipalAttribute(): ?string
     {
-        return $this->imagenes->first()?->url;
+        $url = $this->imagenes->first()?->url;
+        if (!$url) return null;
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+        return asset(ltrim($url, '/'));
     }
 
      public function valoraciones()

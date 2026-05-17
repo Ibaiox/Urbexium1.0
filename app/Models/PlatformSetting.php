@@ -35,7 +35,10 @@ class PlatformSetting extends Model
 
     public static function set(string $clave, mixed $valor): void
     {
-        static::where('clave', $clave)->update(['valor' => (string) $valor]);
+        static::updateOrCreate(
+            ['clave' => $clave],
+            ['valor' => (string) $valor]
+        );
     }
 
     /** Devuelve todos los ajustes como array clave => valorCasteado */

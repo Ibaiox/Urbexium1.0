@@ -6,7 +6,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    .img-gallery { display:grid; gap:0.5rem; }
+    .img-gallery { display:grid; gap:0.5rem; overflow:hidden; position:relative; }
     .img-gallery.one  { grid-template-columns:1fr; }
     .img-gallery.two  { grid-template-columns:1fr 1fr; }
     .img-gallery.many { grid-template-columns:2fr 1fr; grid-template-rows:1fr 1fr; }
@@ -149,7 +149,7 @@
                 </div>
 
                 {{-- Botones --}}
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; position:relative; z-index:2;">
                     @auth
                     <button onclick="toggleFavDetail(this, {{ $spot->id }})"
                         class="btn {{ $isFavorito ? 'btn-primary' : 'btn-secondary' }}"
@@ -418,7 +418,7 @@
                         <span style="font-size:0.875rem; color:var(--muted-foreground); display:flex; align-items:center; gap:0.5rem;">
                             <i data-lucide="info" style="width:0.875rem;height:0.875rem;"></i>Estado
                         </span>
-                        <span style="font-size:0.875rem; font-weight:500;">{{ $spot->estado }}</span>
+                        <span style="font-size:0.875rem; font-weight:500; text-align:right; word-break:break-word; max-width:65%;">{{ $spot->estado }}</span>
                     </div>
                     @endif
 
