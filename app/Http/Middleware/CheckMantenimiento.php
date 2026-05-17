@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PlatformSetting;
+use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckMantenimiento
@@ -16,17 +17,31 @@ class CheckMantenimiento
         $enMantenimiento = PlatformSetting::get('modo_mantenimiento', 'false') === 'true';
 
         if ($enMantenimiento) {
-            // Los admins pueden seguir accediendo siempre
+            // Permitir siempre login, logout y recuperación de contraseña
+            if ($request->routeIs('login', 'logout', 'password.*') || $request->is('login', 'logout')) {
+                return $next($request);
+            }
+
+            // Con prepend, StartSession ya corrió antes, así que la sesión está disponible.
+            // Leemos el userId directamente de la sesión sin pasar por Auth::check()
+            try {
+                $sessionKey = 'login_web_' . sha1(\Illuminate\Auth\SessionGuard::class);
+                $userId = $request->session()->get($sessionKey);
+                if ($userId) {
+                    $user = User::find($userId);
+                    if ($user && $user->esAdmin()) {
+                        return $next($request);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Sesión no disponible todavía, continuamos
+            }
+
+            // Fallback por si Auth sí está resuelto
             if (Auth::check() && Auth::user()->esAdmin()) {
                 return $next($request);
             }
 
-            // Permitir acceso a login/logout para que el admin pueda entrar
-            if ($request->routeIs('login', 'logout', 'password.*')) {
-                return $next($request);
-            }
-
-            // Devolver vista de mantenimiento (503)
             abort(503, 'La plataforma está en mantenimiento. Vuelve pronto.');
         }
 

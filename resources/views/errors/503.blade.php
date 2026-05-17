@@ -1,4 +1,13 @@
 {{-- resources/views/errors/503.blade.php --}}
+{{--
+    En vistas de error, @auth / Auth::check() NO funciona porque el
+    ServiceProvider de autenticación no se ha resuelto en ese punto.
+    Solución: leer la sesión directamente con la clave interna de Laravel
+    y buscar el usuario en la BD manualmente.
+
+    Clave de sesión: 'login_web_' . sha1(\Illuminate\Auth\SessionGuard::class)
+    → 'login_web_59ba36addc2b2f9401580f014c7f58ea4e30989d'
+--}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,6 +27,7 @@
             --primary: oklch(0.707 0.165 254.624);
             --primary-foreground: oklch(0.18 0.045 264.695);
             --accent: oklch(0.769 0.188 70.08);
+            --destructive: oklch(0.704 0.191 22.216);
             --radius: 0.625rem;
         }
 
@@ -68,25 +78,20 @@
         }
 
         .title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            letter-spacing: -0.03em;
+            font-size: 1.5rem; font-weight: 700;
+            margin-bottom: 0.75rem; letter-spacing: -0.03em;
         }
 
         .divider {
             width: 3rem; height: 2px;
             background: color-mix(in oklch, var(--accent) 40%, transparent);
-            margin: 1.25rem auto;
-            border-radius: 1px;
+            margin: 1.25rem auto; border-radius: 1px;
         }
 
         .msg {
             color: var(--muted-foreground);
-            font-size: 0.9375rem;
-            max-width: 400px;
-            line-height: 1.7;
-            margin: 0 auto 2rem;
+            font-size: 0.9375rem; max-width: 400px;
+            line-height: 1.7; margin: 0 auto 2rem;
         }
 
         .badge {
@@ -94,12 +99,11 @@
             padding: 0.5rem 1rem;
             background: color-mix(in oklch, var(--accent) 10%, transparent);
             border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
-            border-radius: 999px;
-            font-size: 0.8125rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 2rem;
+            border-radius: 999px; font-size: 0.8125rem;
+            color: var(--accent); font-weight: 600; margin-bottom: 2rem;
         }
+
+        .btn-group { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
 
         .btn {
             display: inline-flex; align-items: center; gap: 0.5rem;
@@ -108,13 +112,51 @@
             font-weight: 600; text-decoration: none; cursor: pointer;
             border: 1px solid var(--border);
             background: color-mix(in oklch, var(--foreground) 6%, transparent);
-            color: var(--foreground);
-            transition: all 150ms;
+            color: var(--foreground); transition: all 150ms; font-family: inherit;
         }
         .btn:hover { background: color-mix(in oklch, var(--foreground) 12%, transparent); }
+        .btn-danger {
+            background: color-mix(in oklch, var(--destructive) 10%, transparent);
+            border-color: color-mix(in oklch, var(--destructive) 30%, transparent);
+            color: var(--destructive);
+        }
+        .btn-danger:hover { background: color-mix(in oklch, var(--destructive) 18%, transparent); }
+
+        .session-info {
+            font-size: 0.8rem; color: var(--muted-foreground); margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 <body>
+
+@php
+    /**
+     * En vistas de error, el stack de middlewares de autenticación no se ejecuta,
+     * por lo que Auth::check() y la directiva @auth devuelven siempre false.
+     *
+     * Solución: leer la sesión directamente con la clave interna que usa
+     * Illuminate\Auth\SessionGuard para persistir el ID del usuario autenticado,
+     * y luego buscarlo en la BD manualmente con Eloquent.
+     *
+     * La clave es: 'login_web_' . sha1(\Illuminate\Auth\SessionGuard::class)
+     * Esto produce: 'login_web_59ba36addc2b2f9401580f014c7f58ea4e30989d'
+     */
+    $sessionUser = null;
+
+    try {
+        $sessionKey = 'login_web_' . sha1(\Illuminate\Auth\SessionGuard::class);
+        $userId     = session($sessionKey);   // null si no hay sesión activa
+
+        if ($userId) {
+            $sessionUser = \App\Models\User::with('rol')->find($userId);
+        }
+    } catch (\Exception $e) {
+        // Si la sesión no está disponible en este punto del ciclo (muy raro
+        // pero posible en algunos setups de caché/sesión personalizados),
+        // simplemente mostramos el enlace al login.
+    }
+@endphp
+
     <a href="{{ url('/') }}" class="brand">
         <i data-lucide="map-pin" style="width:1.1rem;height:1.1rem;color:var(--primary);"></i>
         Urbexium
@@ -138,10 +180,41 @@
         Disculpa las molestias.
     </p>
 
-    <a href="{{ route('login') }}" class="btn">
-        <i data-lucide="log-in" style="width:1rem;height:1rem;"></i>
-        Acceso administrador
-    </a>
+    <div class="btn-group">
+
+        @if($sessionUser)
+            {{--
+                Hay un usuario en sesión. Mostramos su nombre y rol,
+                y un formulario POST a la ruta 'logout'.
+
+                Nota: la ruta 'logout' debe estar excluida del middleware
+                CheckMantenimiento (ya lo está en tu implementación actual),
+                y el LoginController NO debe exigir middleware('auth') en logout
+                porque en modo mantenimiento Auth::check() puede ser false
+                aunque la sesión exista. Ver LoginController.php.
+            --}}
+            <p class="session-info">
+                Sesión activa como <strong>{{ $sessionUser->nombre }}</strong>
+                ({{ $sessionUser->rol?->nombre ?? 'usuario' }})
+            </p>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-danger">
+                    <i data-lucide="log-out" style="width:1rem;height:1rem;"></i>
+                    Cerrar sesión e iniciar como admin
+                </button>
+            </form>
+
+        @else
+            {{-- No hay sesión activa: ofrecemos ir al login --}}
+            <a href="{{ route('login') }}" class="btn">
+                <i data-lucide="log-in" style="width:1rem;height:1rem;"></i>
+                Acceso administrador
+            </a>
+        @endif
+
+    </div>
 
     <script>lucide.createIcons();</script>
 </body>

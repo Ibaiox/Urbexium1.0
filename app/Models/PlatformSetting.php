@@ -30,7 +30,7 @@ class PlatformSetting extends Model
     public static function get(string $clave, mixed $default = null): mixed
     {
         $setting = static::find($clave);
-        return $setting ? $setting->valor_casteado : $default;
+        return $setting ? $setting->valor : $default;
     }
 
     public static function set(string $clave, mixed $valor): void
