@@ -84,7 +84,7 @@
             <tr>
                 <td>
                     @if($spot->imagenes->first())
-                        <img src="{{ asset('storage/'.$spot->imagenes->first()->ruta) }}" class="spot-thumb" alt="">
+                        <img src="{{ asset($spot->imagenes->first()->url) }}" class="spot-thumb" alt="">
                     @else
                         <div class="spot-thumb" style="display:flex;align-items:center;justify-content:center;">
                             <i data-lucide="image-off" style="width:1.2rem;height:1.2rem;color:var(--muted-foreground);"></i>

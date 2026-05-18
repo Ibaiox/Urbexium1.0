@@ -60,7 +60,7 @@
             Imprescindibles para el funcionamiento de la plataforma. No requieren consentimiento.
         </p>
         <div style="overflow-x:auto; margin-bottom:1.5rem;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
+            <table class="cookie-table" style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
                 <thead>
                     <tr style="background:var(--secondary);">
                         <th style="padding:0.5rem 0.75rem; text-align:left; border:1px solid var(--border); font-weight:600;">Nombre</th>
@@ -71,22 +71,22 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">urbexium_session</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Mantiene la sesión del usuario autenticado</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Sesión</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
+                        <td data-label="Nombre" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">urbexium_session</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Mantiene la sesión del usuario autenticado</td>
+                        <td data-label="Duración" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Sesión</td>
+                        <td data-label="Tipo" style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
                     </tr>
                     <tr style="background:var(--secondary);">
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">XSRF-TOKEN</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Protección contra ataques CSRF</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Sesión</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
+                        <td data-label="Nombre" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">XSRF-TOKEN</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Protección contra ataques CSRF</td>
+                        <td data-label="Duración" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Sesión</td>
+                        <td data-label="Tipo" style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
                     </tr>
                     <tr>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">remember_web_*</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Función "Recuérdame" al iniciar sesión</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">400 días</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
+                        <td data-label="Nombre" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">remember_web_*</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Función "Recuérdame" al iniciar sesión</td>
+                        <td data-label="Duración" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">400 días</td>
+                        <td data-label="Tipo" style="padding:0.5rem 0.75rem; border:1px solid var(--border);"><span class="badge badge-primary">Propia</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -101,7 +101,7 @@
             Recuerdan tus configuraciones para mejorar tu experiencia. Se almacenan en <code style="background:var(--secondary); padding:0.1rem 0.35rem; border-radius:0.25rem; font-size:0.75rem;">localStorage</code> del navegador.
         </p>
         <div style="overflow-x:auto; margin-bottom:1.5rem;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
+            <table class="cookie-table" style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
                 <thead>
                     <tr style="background:var(--secondary);">
                         <th style="padding:0.5rem 0.75rem; text-align:left; border:1px solid var(--border); font-weight:600;">Clave</th>
@@ -111,14 +111,14 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">darkMode</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Guardar preferencia de tema (oscuro/claro)</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Persistente</td>
+                        <td data-label="Clave" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">darkMode</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Guardar preferencia de tema (oscuro/claro)</td>
+                        <td data-label="Duración" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Persistente</td>
                     </tr>
                     <tr style="background:var(--secondary);">
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">sidebarCollapsed</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Guardar estado del menú lateral</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Persistente</td>
+                        <td data-label="Clave" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-family:monospace; font-size:0.8rem;">sidebarCollapsed</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Guardar estado del menú lateral</td>
+                        <td data-label="Duración" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Persistente</td>
                     </tr>
                 </tbody>
             </table>
@@ -133,7 +133,7 @@
             Generadas por servicios externos que integramos en la plataforma.
         </p>
         <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
+            <table class="cookie-table" style="width:100%; border-collapse:collapse; font-size:0.8125rem;">
                 <thead>
                     <tr style="background:var(--secondary);">
                         <th style="padding:0.5rem 0.75rem; text-align:left; border:1px solid var(--border); font-weight:600;">Proveedor</th>
@@ -143,16 +143,16 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-weight:600;">Stripe</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Procesamiento seguro de pagos</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">
+                        <td data-label="Proveedor" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-weight:600;">Stripe</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Procesamiento seguro de pagos</td>
+                        <td data-label="Más info" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">
                             <a href="https://stripe.com/es/privacy" target="_blank" rel="noopener" style="color:var(--primary); font-size:0.8rem;">stripe.com/privacy</a>
                         </td>
                     </tr>
                     <tr style="background:var(--secondary);">
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-weight:600;">Leaflet / Tiles</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Renderizado de mapas interactivos</td>
-                        <td style="padding:0.5rem 0.75rem; border:1px solid var(--border);">
+                        <td data-label="Proveedor" style="padding:0.5rem 0.75rem; border:1px solid var(--border); font-weight:600;">Leaflet / Tiles</td>
+                        <td data-label="Finalidad" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">Renderizado de mapas interactivos</td>
+                        <td data-label="Más info" style="padding:0.5rem 0.75rem; border:1px solid var(--border);">
                             <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--primary); font-size:0.8rem;">OpenStreetMap</a>
                         </td>
                     </tr>
@@ -207,6 +207,42 @@
 
 </div>
 
+
+<style>
+/* ── Tablas responsive en móvil ── */
+@media (max-width: 600px) {
+    .cookie-table thead { display: none; }
+    .cookie-table tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--secondary);
+    }
+    .cookie-table tbody tr:nth-child(even) { background: var(--secondary); }
+    .cookie-table td {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.3rem 0 !important;
+        border: none !important;
+        font-size: 0.8125rem;
+        word-break: break-word;
+        line-height: 1.5;
+        align-items: baseline;
+    }
+    .cookie-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        min-width: 5.5rem;
+        flex-shrink: 0;
+        color: var(--muted-foreground);
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+}
+</style>
 <style>
     p { margin: 0 0 0.75rem; }
     p:last-child { margin-bottom: 0; }
