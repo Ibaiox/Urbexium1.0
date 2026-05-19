@@ -58,10 +58,11 @@ class PerfilController extends Controller
         $user = Auth::user();
 
         $data = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email'  => 'required|email|unique:users,email,' . $user->id,
-            'bio'    => 'nullable|string|max:1000',
-            'avatar' => 'nullable|image|max:2048',
+            'nombre'   => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'bio'      => 'nullable|string|max:1000',
+            'location' => 'nullable|string|max:255',   // ← NUEVO campo ubicación
+            'avatar'   => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('avatar')) {

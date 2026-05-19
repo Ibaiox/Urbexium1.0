@@ -2,58 +2,57 @@
 
 namespace Database\Seeders;
 
-
 use Illuminate\Database\Seeder;
 use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->call([
-            RolSeeder::class,      // 1. Roles (los necesita User)
-            PaisSeeder::class,     // 2. Países y ciudades
-            MaterialSeeder::class, // 3. Materiales recomendados
-            ProductoSeeder::class,
+            RolSeeder::class,       // 1. Roles (los necesita User)
+            PaisSeeder::class,      // 2. Países y ciudades
+            MaterialSeeder::class,  // 3. Materiales recomendados
+            ProductoSeeder::class,  // 4. Productos tienda
         ]);
 
-      // Moderador
-$rolMod = Rol::where('nombre', 'moderador')->first();
+        // ── Moderador ─────────────────────────────────────────────────────
+        $rolMod = Rol::where('nombre', 'moderador')->first();
 
-$mod = User::firstOrCreate(
-    ['email' => 'moderadorUrbexium@gmail.com'],
-    [
-        'rol_id'   => $rolMod->id,
-        'nombre'   => 'Moderador',
-        'password' => Hash::make('12345678'),
-        'baneado'  => false,
-    ]
-);
+        $mod = User::firstOrCreate(
+            ['email' => 'moderadorUrbexium@gmail.com'],
+            [
+                'rol_id'   => $rolMod->id,
+                'nombre'   => 'Moderador',
+                'password' => Hash::make('12345678'),
+                'baneado'  => false,
+            ]
+        );
 
-// Administrador
-$rolAdmin = Rol::where('nombre', 'admin')->first();
+        // ── Administrador ─────────────────────────────────────────────────
+        $rolAdmin = Rol::where('nombre', 'admin')->first();
 
-$admin = User::firstOrCreate(
-    ['email' => 'adminUrbexium@gmail.com'],
-    [
-        'rol_id'   => $rolAdmin->id,
-        'nombre'   => 'Administrador',
-        'password' => Hash::make('12345678'),
-        'baneado'  => false,
-    ]
-);
+        $admin = User::firstOrCreate(
+            ['email' => 'adminUrbexium@gmail.com'],
+            [
+                'rol_id'   => $rolAdmin->id,
+                'nombre'   => 'Administrador',
+                'password' => Hash::make('12345678'),
+                'baneado'  => false,
+            ]
+        );
 
         $this->command->info(
             $mod->wasRecentlyCreated
-                ? ' Moderador creado:  moderadorUrbexium@gmail.com  /  12345678'
-                : 'ℹ  Moderador ya existía, no se modificó.'
+                ? '✅  Moderador creado:  moderadorUrbexium@gmail.com  /  12345678'
+                : 'ℹ️  Moderador ya existía, no se modificó.'
         );
 
-        // ── Spots (necesita un usuario admin creado arriba) ───────────────
         $this->call([
-            SpotSeeder::class,     // 5. Localizaciones
+            SpotSeeder::class,      // 5. Localizaciones (necesita admin)
+            CommunitySeeder::class, // 6. Comunidades con miembros y chat ← NUEVO
         ]);
-
     }
 }

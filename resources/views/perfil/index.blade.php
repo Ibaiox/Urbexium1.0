@@ -3,18 +3,10 @@
 
 @section('title', 'Mi Perfil')
 
-@php
-function paginacionEstilizada($paginator) {
-    // Esta función no funciona en blade, usamos el componente inline
-}
-@endphp
-
 @section('content')
 <style>
 @media (max-width: 480px) {
-    /* Tabs: ocultar texto, solo iconos */
     .tab-label-text { display: none; }
-    /* Tab buttons más compactos */
     #tab-btn-spots, #tab-btn-favoritos, #tab-btn-pedidos,
     #tab-btn-notificaciones, #tab-btn-configuracion {
         padding: 0.5rem !important;
@@ -23,7 +15,6 @@ function paginacionEstilizada($paginator) {
     }
 }
 @media (max-width: 639px) {
-    /* Stats del perfil hero en 2 columnas */
     .perfil-stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
@@ -42,7 +33,6 @@ function paginacionEstilizada($paginator) {
 
     {{-- ===== PERFIL HERO ===== --}}
     <div class="card" style="overflow:hidden;">
-        {{-- Banner --}}
         <div style="
             height:8rem; position:relative;
             background:linear-gradient(135deg,
@@ -111,6 +101,12 @@ function paginacionEstilizada($paginator) {
                         <p style="color:var(--muted-foreground); font-size:0.875rem; margin:0.25rem 0 0;">{{ $user->email }}</p>
                         @if($user->bio)
                         <p style="font-size:0.875rem; margin:0.5rem 0 0; max-width:36rem; line-height:1.6;">{{ $user->bio }}</p>
+                        @endif
+                        @if($user->location)
+                        <p style="font-size:0.875rem; color:var(--muted-foreground); margin:0.35rem 0 0; display:flex; align-items:center; gap:0.3rem;">
+                            <i data-lucide="map-pin" style="width:0.875rem; height:0.875rem;"></i>
+                            {{ $user->location }}
+                        </p>
                         @endif
                         <div style="display:flex; align-items:center; gap:1rem; margin-top:0.75rem; flex-wrap:wrap;">
                             <span style="display:flex;align-items:center;gap:0.375rem;font-size:0.8125rem;color:var(--muted-foreground);">
@@ -181,13 +177,28 @@ function paginacionEstilizada($paginator) {
         @if(isset($misSpots) && $misSpots->count())
         <div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fill, minmax(16rem,1fr));">
             @foreach($misSpots as $spot)
+            @php
+                $primeraImagen = $spot->imagenes->first();
+                $portadaRaw = $primeraImagen?->url ?? null;
+                $portada = $portadaRaw
+                    ? (\Illuminate\Support\Str::startsWith($portadaRaw, ['http://', 'https://'])
+                        ? $portadaRaw
+                        : asset(ltrim($portadaRaw, '/')))
+                    : null;
+            @endphp
             <a href="{{ route('spots.show', $spot) }}" style="text-decoration:none;color:inherit;">
                 <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 200ms;"
                     onmouseover="this.style.borderColor='color-mix(in oklch, var(--primary) 50%, transparent)';this.style.boxShadow='0 4px 16px color-mix(in oklch, var(--primary) 8%, transparent)'"
                     onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
                     <div style="position:relative;height:10rem;background:var(--secondary);overflow:hidden;">
-                        @if($spot->imagenes->first())
-                        <img src="{{ asset('storage/'.$spot->imagenes->first()->url) }}" alt="{{ $spot->nombre }}" style="width:100%;height:100%;object-fit:cover;" />
+                        @if($portada)
+                        <img src="{{ $portada }}"
+                             alt="{{ $spot->nombre }}"
+                             style="width:100%;height:100%;object-fit:cover;"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                        <div style="width:100%;height:100%;display:none;align-items:center;justify-content:center;">
+                            <i data-lucide="image" style="width:2rem;height:2rem;color:var(--muted-foreground);opacity:0.4;"></i>
+                        </div>
                         @else
                         <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                             <i data-lucide="image" style="width:2rem;height:2rem;color:var(--muted-foreground);opacity:0.4;"></i>
@@ -237,13 +248,28 @@ function paginacionEstilizada($paginator) {
         @if(isset($favoritos) && $favoritos->count())
         <div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fill, minmax(16rem,1fr));">
             @foreach($favoritos as $spot)
+            @php
+                $primeraImagen = $spot->imagenes->first();
+                $portadaRaw = $primeraImagen?->url ?? null;
+                $portada = $portadaRaw
+                    ? (\Illuminate\Support\Str::startsWith($portadaRaw, ['http://', 'https://'])
+                        ? $portadaRaw
+                        : asset(ltrim($portadaRaw, '/')))
+                    : null;
+            @endphp
             <a href="{{ route('spots.show', $spot) }}" style="text-decoration:none;color:inherit;">
                 <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 200ms;"
                     onmouseover="this.style.borderColor='color-mix(in oklch, var(--primary) 50%, transparent)';this.style.boxShadow='0 4px 16px color-mix(in oklch, var(--primary) 8%, transparent)'"
                     onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
                     <div style="position:relative;height:10rem;background:var(--secondary);overflow:hidden;">
-                        @if($spot->imagenes->first())
-                        <img src="{{ asset('storage/'.$spot->imagenes->first()->url) }}" alt="{{ $spot->nombre }}" style="width:100%;height:100%;object-fit:cover;" />
+                        @if($portada)
+                        <img src="{{ $portada }}"
+                             alt="{{ $spot->nombre }}"
+                             style="width:100%;height:100%;object-fit:cover;"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                        <div style="width:100%;height:100%;display:none;align-items:center;justify-content:center;">
+                            <i data-lucide="image" style="width:2rem;height:2rem;color:var(--muted-foreground);opacity:0.4;"></i>
+                        </div>
                         @else
                         <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                             <i data-lucide="image" style="width:2rem;height:2rem;color:var(--muted-foreground);opacity:0.4;"></i>
@@ -456,6 +482,18 @@ function paginacionEstilizada($paginator) {
                             <textarea id="bio" name="bio" rows="3" placeholder="Cuéntanos un poco sobre ti..."
                                 style="padding:0.625rem 0.875rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--foreground);font-size:0.875rem;outline:none;resize:vertical;font-family:inherit;"
                                 onfocus="this.style.borderColor='var(--ring)'" onblur="this.style.borderColor='var(--border)'">{{ old('bio', $user->bio) }}</textarea>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.375rem;">
+                            <label for="location" style="font-size:0.875rem;font-weight:500;">
+                                Ubicación
+                                <span style="font-weight:400; color:var(--muted-foreground); font-size:0.8125rem;">(opcional)</span>
+                            </label>
+                            <input type="text" id="location" name="location" value="{{ old('location', $user->location) }}"
+                                   placeholder="Ej: Bilbao, País Vasco" maxlength="255"
+                                   style="height:2.625rem;padding:0 0.875rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--foreground);font-size:0.875rem;outline:none;font-family:inherit;"
+                                   onfocus="this.style.borderColor='var(--ring)'" onblur="this.style.borderColor='var(--border)'" />
+                            <p style="font-size:0.75rem; color:var(--muted-foreground); margin:0;">Tu ciudad o zona. Se mostrará en tu perfil de comunidades.</p>
+                            @error('location')<span style="font-size:0.75rem;color:var(--destructive);">{{ $message }}</span>@enderror
                         </div>
                         <button type="submit" class="btn btn-primary" style="align-self:flex-start;">
                             <i data-lucide="save" style="width:0.875rem;height:0.875rem;"></i>

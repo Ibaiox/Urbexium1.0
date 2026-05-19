@@ -17,6 +17,7 @@ class User extends Authenticatable
         'password',
         'avatar',
         'bio',
+        'location',   // ← NUEVO: ubicación opcional del usuario
         'baneado',
     ];
 
@@ -31,7 +32,7 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
-    // ── Relaciones ────────────────────────────────────────────────────────
+    // ── Relaciones existentes ─────────────────────────────────────────────
 
     public function rol()
     {
@@ -86,6 +87,26 @@ class User extends Authenticatable
     public function valoraciones()
     {
         return $this->hasMany(\App\Models\Valoracion::class);
+    }
+
+    // ── Relaciones de comunidad (NUEVAS) ──────────────────────────────────
+
+    /**
+     * Comunidades a las que pertenece el usuario.
+     */
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_user')
+                    ->withPivot(['role', 'joined_at'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Mensajes que ha enviado el usuario en comunidades.
+     */
+    public function communityMessages()
+    {
+        return $this->hasMany(CommunityMessage::class);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────

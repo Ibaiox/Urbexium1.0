@@ -5,7 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SpotController;
 use App\Http\Controllers\ValoracionController;
 use App\Http\Controllers\MapController;
-use App\Http\Controllers\ComunidadesController;
+use App\Http\Controllers\ComunidadesController;  // Controlador viejo (por si aún lo usas)
+use App\Http\Controllers\CommunityController;    // ← NUEVO controlador de comunidades
 use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\NotificacionController;
@@ -91,7 +92,17 @@ Route::middleware(['auth', 'no.banned'])->group(function () {
     Route::delete('/spots/{spot}/valorar', [ValoracionController::class, 'destroy'])->name('spots.valorar.destroy');
 
     // ── Comunidades ───────────────────────────────────────────────────────
-    Route::get('/comunidades', [ComunidadesController::class, 'index'])->name('comunidades.index');
+    // Las rutas públicas (index, show) también están aquí dentro del grupo auth/no.banned
+    // porque en tu proyecto el grupo de arriba ya las incluía así.
+    // Si quieres que index/show sean públicos, sácalos al grupo 'no.banned' de arriba.
+    Route::prefix('comunidades')->name('comunidades.')->group(function () {
+        Route::get('/',                                          [CommunityController::class, 'index'])         ->name('index');
+        Route::get('/{community}',                              [CommunityController::class, 'show'])          ->name('show');
+        Route::post('/{community}/unirse',                      [CommunityController::class, 'join'])          ->name('join');
+        Route::delete('/{community}/salir',                     [CommunityController::class, 'leave'])         ->name('leave');
+        Route::post('/{community}/mensajes',                    [CommunityController::class, 'storeMessage'])  ->name('messages.store');
+        Route::delete('/{community}/mensajes/{message}',        [CommunityController::class, 'destroyMessage'])->name('messages.destroy');
+    });
 
     // ── Tienda ────────────────────────────────────────────────────────────
     Route::prefix('tienda')->name('tienda.')->group(function () {
