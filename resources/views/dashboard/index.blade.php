@@ -25,15 +25,6 @@
             </p>
         </div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
-            @guest
-            <a href="{{ route('login') }}" class="btn btn-ghost" style="font-size:0.875rem; padding:0.4rem 0.875rem;">
-                Iniciar sesión
-            </a>
-            <a href="{{ route('register') }}" class="btn btn-primary">
-                <i data-lucide="user-plus" style="width:0.9rem;height:0.9rem;"></i>
-                Registrarse
-            </a>
-            @endguest
             @auth
             <a href="{{ route('spots.index') }}" class="btn btn-primary">
                 Explorar Spots
